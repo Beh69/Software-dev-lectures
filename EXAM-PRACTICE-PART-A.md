@@ -78,42 +78,45 @@ Below are **three full practice sets (30 blanks total)** mirroring the real styl
 ---
 
 ## Answer Key
+*(Each answer cites the source slide so you can revise the concept. "T5 p.3" = UOW 2016 Topic 5.pdf, page 3.)*
 
 ### Set 1
-1. **Verification** / **Validation**
-2. **Waterfall** / **Spiral**
-3. **Product backlog** / **Sprint backlog**
-4. **type of user** / **reason** (benefit)
-5. **«include»** / **«extend»**
-6. **Aggregation** / **Composition**
-7. **Statement** / **Decision (branch)**
-8. **Test-Driven Development (TDD)**
-9. **Work-In-Progress (WIP)** / **bottlenecks**
-10. **CMMI (Capability Maturity Model Integration)**
+1. **Verification** / **Validation** — *T5 p.3; T1 p.28*
+2. **Waterfall** / **Spiral** — *T2 pp.4–6; pp.34–35*
+3. **Product backlog** / **Sprint backlog** — *T2 pp.14,16,22*
+4. **type of user** / **reason** (benefit) — *T2 p.15*
+5. **«include»** / **«extend»** — *T3 pp.13–14*
+6. **Aggregation** / **Composition** — *T3 pp.19–21*
+7. **Statement** / **Decision (branch)** — *T5 pp.21–24*
+8. **Test-Driven Development (TDD)** — *T5 pp.30–32*
+9. **Work-In-Progress (WIP)** / **bottlenecks** — *T8 pp.8–9*
+10. **CMMI (Capability Maturity Model Integration)** — *T10 p.7*
 
 ### Set 2
-1. **Corrective** / **Adaptive**
-2. **Process** / **Use case (scenario)**
-3. **Product Owner** / **Scrum Master**
-4. **Boundary (View)** / **Entity (Model)**
-5. **Equivalence partitioning** / **Boundary value analysis**
-6. **inspection (review)**
-7. **Delivery** / **Deployment**
-8. **DevOps**
-9. **Delivery** / **Commitment**
-10. **Defined (Level 3)** / **Managed (Level 2)**
+1. **Corrective** / **Adaptive** — *T1 p.31*
+2. **Process** / **Use case (scenario)** — *T3 pp.6–11; T4*
+3. **Product Owner** / **Scrum Master** — *T2 pp.16–17,20*
+4. **Boundary (View)** / **Entity (Model)** — *T4 pp.14–21*
+5. **Equivalence partitioning** / **Boundary value analysis** — *T5 pp.25–27*
+6. **inspection (review)** — *T5 pp.5–8*
+7. **Delivery** / **Deployment** — *T6 pp.32–35*
+8. **DevOps** — *T7 p.10*
+9. **Delivery** / **Commitment** — *T8 pp.8–9*
+10. **Defined (Level 3)** / **Managed (Level 2)** — *T10 pp.9–12*
 
 ### Set 3
-1. **Prototyping**
-2. **comprehensive documentation** / **following a plan**
-3. **state (machine)** / **guard condition**
-4. **sequence** / **communication**
-5. **Velocity**
-6. **normal** / **abnormal**
-7. **Respect** / **Courage**
-8. **Pair programming** / **spike**
-9. **Infrastructure as Code (IaC)**
-10. **stubs** / **drivers**
+1. **Prototyping** — *T2 pp.29–33*
+2. **comprehensive documentation** / **following a plan** — *T8 (Agile vs Waterfall table); T2 pp.6–10*
+3. **state (machine)** / **guard condition** — *T3 pp.28–30*
+4. **sequence** / **communication** — *T4 pp.4–11, 24, 27*
+5. **Velocity** — *T2 p.22; T8 (Kanban vs Scrum) p.13*
+6. **normal** / **abnormal** — *T5 pp.16–19*
+7. **Respect** / **Courage** — *T8 pp.16–21*
+8. **Pair programming** / **spike** — *T8 pp.22–27, 29*
+9. **Infrastructure as Code (IaC)** — *T6 pp.26–27*
+10. **stubs** / **drivers** — *T5 p.28; T6 (integration) pp.4–6*
+
+> **Legend:** T1–T12 = "UOW 2016 Topic 1–12.pdf". Full file↔page lookup is in `EXAM-STUDY-GUIDE.md` → *Sources & Citations*.
 
 ---
 

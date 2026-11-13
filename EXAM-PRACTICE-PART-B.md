@@ -140,3 +140,20 @@ Re-do all seven questions for the **Lab 1 "Sure Thing Insurance" online-claims**
 - Testing targets: premium calculation, excess/no-claim-bonus rules, the two-week stolen-car wait — ideal for equivalence partitioning and boundary value analysis.
 
 Writing out your own answers (not just reading these) is what builds Part B speed.
+
+---
+
+## Sources & Citations
+Each question applies concepts taught on these slides/labs. ("T4 pp.14–21" = UOW 2016 Topic 4.pdf, pages 14–21.)
+
+| Question | Concept applied | Source |
+|---|---|---|
+| Q1 — user stories | User story template & examples | *T2 p.15*; *Lab 1* pp.1–3 |
+| Q2 — use case diagram | Actors, boundary, «include»/«extend» | *T3 pp.6–14* |
+| Q3 — class diagram | Class symbol/prefixes; aggregation/composition/inheritance/association | *T3 pp.16–21* |
+| Q4 — sequence diagram | Lifelines, focus of control, call/return messages; one use case | *T4 pp.4–11*; B-C-E control object *T4 pp.14–21* |
+| Q5 — process recommendation | Agile/Scrum/XP; incremental & iterative vs waterfall | *T2 pp.4–10,24–27*; *T8 (XP)* pp.16–27 |
+| Q6 — testing approach | V&V, static/dynamic, unit→integration→system→acceptance, white/black-box | *T5 pp.3–29* |
+| Q7 — test cases | Standard 8-column matrix; equivalence partitioning & boundary value analysis | *T5 pp.13–14, 25–27* |
+
+> **Legend:** T1–T12 = "UOW 2016 Topic 1–12.pdf"; Lab 1/3/5/7 = the matching "Lab N.pdf". Full file↔page lookup is in `EXAM-STUDY-GUIDE.md` → *Sources & Citations*. The **CampusEats** scenario itself is a mock written for practice (not from the slides); the **Sure Thing Insurance** scenario is from *Lab 1.pdf* pp.1–3.

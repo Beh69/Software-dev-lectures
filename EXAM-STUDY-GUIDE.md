@@ -6,6 +6,8 @@
 
 This guide is built from the lecture slides (Topics 1–12) and labs in this repo. It is organised by the five topic clusters named on your exam sheet.
 
+> **Citations:** each major section ends with a *Source* line giving the exact PDF file and slide/page number(s). A full lookup table is in the **[Sources & Citations](#sources--citations)** appendix at the end. Page numbers refer to the PDF page (as counted by a PDF reader), which equals the slide position in the deck.
+
 ---
 
 ## 1. Software Processes
@@ -54,6 +56,8 @@ Key traits: adaptive planning, iterative/incremental, early & continuous deliver
 - **XP:** short iterations (1–2 weeks), very flexible within iterations, customer prioritises features; engineering-focused (TDD, pair programming).
 
 **RUP essentials:** 6 best practices (develop iteratively, manage requirements, use components, model visually, verify quality, control changes). Phases on the time axis: **Inception → Elaboration → Construction → Transition**. Building blocks: Roles (who), Tasks/Activities (how), Work Products/Artifacts (what), Workflows (when), Disciplines (container).
+
+> **Sources:** SDLC activities — *UOW 2016 Topic 1.pdf* p.19; maintenance types — Topic 1 p.31; eight laws of evolution — Topic 1 pp.32–34. Waterfall — *Topic 2.pdf* pp.4–6; Agile methods/principles — Topic 2 pp.6–10; Scrum roles — Topic 2 pp.16–17,20; Scrum artefacts/backlog/burndown — Topic 2 pp.14,16,20,22; incremental & iterative — Topic 2 pp.24–27; prototyping — Topic 2 pp.29–33; spiral — Topic 2 pp.34–35. RUP phases — *Topic 9.pdf* pp.6–8,12–16; RUP building blocks — Topic 9 p.5.
 
 ---
 
@@ -107,6 +111,8 @@ Transition parts: **source state → [guard condition] event / action → target
 
 > *Part B modelling flow:* Use case (what) → class diagram (structure) → sequence diagram (behaviour of one use case) → B-C-E/MVC design → code. State diagrams add per-object dynamics.
 
+> **Sources:** user stories — *UOW 2016 Topic 2.pdf* p.15 (also Lab 1 Task 1). 4+1 View Model — *Topic 3.pdf* pp.6–11 and *Topic 4.pdf* (process/development/physical views); use case «include»/«extend» — Topic 3 pp.13–14; class symbol & prefixes — Topic 3 pp.16–17; class relationships (aggregation/composition/inheritance/association) — Topic 3 pp.19–21; state diagrams — Topic 3 pp.28–30 (practised in Lab 3). Sequence diagram — *Topic 4.pdf* pp.4–11; communication diagram — Topic 4 pp.24,27; B-C-E design — Topic 4 pp.14–21; deployment diagram — Topic 4 pp.34–39.
+
 ---
 
 ## 3. Quality & Testing
@@ -147,6 +153,8 @@ Write the test **before** the code; passing the test drives development. Steps:
 
 **Benefits:** code coverage (every segment has a test), regression testing (changes don't break old code), simplified debugging (failure localised to the new code). *(Lab 5 did this with a JUnit Calculator — adding `multiply` test-first.)*
 
+> **Sources:** verification vs validation — *UOW 2016 Topic 5.pdf* p.3; static/dynamic & inspections — Topic 5 pp.5–8; test case matrix — Topic 5 pp.13–14; unit testing — Topic 5 pp.16–19; white/black-box — Topic 5 pp.21–25; equivalence partitioning & boundary value analysis — Topic 5 pp.25–27; integration testing — Topic 5 p.28; system/acceptance testing — Topic 5 p.29; TDD — Topic 5 pp.30–32 (practised in Lab 5).
+
 ---
 
 ## 4. Development Practices
@@ -186,6 +194,8 @@ Unifies **Dev**elopment and IT **Op**erations — removes the "wall of confusion
 **DevOps vs Agile:** DevOps spans Dev + Ops (Agile = Dev only); DevOps weights timeliness **and** quality equally; feedback comes from monitoring tools (Agile: from customers).
 **Tool categories:** source repo (Git), build server (Jenkins), configuration management (Puppet/Chef), virtual infrastructure (AWS/Azure), test automation (Selenium).
 
+> **Sources:** XP values — *UOW 2016 Topic 8.pdf* pp.16–21; XP practices — Topic 8 pp.22–27; spike — Topic 8 p.29; Kanban board & 5 components — Topic 8 pp.6–9; Kanban vs Scrum — Topic 8 p.13. Build types — *Topic 6.pdf* pp.8–9; CI practices — Topic 6 pp.17–21; Infrastructure as Code — Topic 6 pp.26–27; Continuous Delivery — Topic 6 pp.32–34; Continuous Deployment — Topic 6 pp.34–35. DevOps definition — *Topic 7.pdf* p.10; DevOps vs Agile — Topic 7 p.15; DevOps tools — Topic 7 p.30.
+
 ---
 
 ## 5. Process Improvement — CMMI
@@ -203,7 +213,10 @@ Unifies **Dev**elopment and IT **Op**erations — removes the "wall of confusion
 **Process-area groups:** Project Management, Process Management, Engineering, Support.
 Progressing one level up typically takes ~2–3 years; better suited to large organisations.
 
-*(Bonus — Topic 11, Data-driven development, if examined: lifecycle = model requirements → data collection → cleaning → labelling → feature engineering → model training → evaluation → deployment → monitoring. Evaluation metrics: precision, recall, F-measure. Lab 7 used Weka + the diabetes dataset with J48 decision tree.)*
+> **Sources:** CMMI definition — *UOW 2016 Topic 10.pdf* p.7; the "5 Maturity Levels" diagram — Topic 10 p.9; Levels 1–3 described in text — Topic 10 pp.9–12; process-area groups — Topic 10 pp.13,23,29.
+> **⚠️ Accuracy note:** the slides spell out Levels 1–3 in text (Initial/Performed, Managed, Defined). The names **Level 4 = Quantitatively Managed** and **Level 5 = Optimizing** come from the standard CMMI model — on the slide they appear only inside the "5 Maturity Levels" diagram (p.9), which did not extract as text. They are the standard, widely-used names; if your lecturer used different wording on that diagram, defer to the slide.
+
+*(Bonus — Topic 11, Data-driven development, if examined: lifecycle = model requirements → data collection → cleaning → labelling → feature engineering → model training → evaluation → deployment → monitoring. Evaluation metrics: precision, recall, F-measure. Lab 7 used Weka + the diabetes dataset with J48 decision tree. **Source:** *UOW 2016 Topic 11.pdf* pp.10–17; Lab 7.)*
 
 ---
 
@@ -267,3 +280,78 @@ Part B gives a project scenario (like the **Sure Thing Insurance** online-claims
 7. **Write concrete test cases** — use the 8-column matrix with real test data and expected results.
 
 **Exam strategy:** Part A rewards precise vocabulary (memorise the drill table). Part B rewards *applying* a concept correctly to the given scenario and *justifying* choices — always tie your answer back to the scenario's facts.
+
+---
+
+## Sources & Citations
+
+All content is drawn from the lecture PDFs and lab PDFs in this repository. Page numbers are the PDF page position (= slide position in the deck). Where a concept spans several slides, a page range is given.
+
+### Lecture slides (UOW 2016 Topics)
+
+| Topic PDF | Concept | Page(s) |
+|---|---|---|
+| Topic 1 | Software development activities (SDLC) | 19 |
+| Topic 1 | Verification & Validation (intro) | 28 |
+| Topic 1 | Maintenance types: adaptive / corrective / perfective | 31 |
+| Topic 1 | Eight laws of software evolution | 32–34 |
+| Topic 2 | Waterfall model | 4–6 |
+| Topic 2 | Agile methods & principles | 6–10 |
+| Topic 2 | User stories | 15 |
+| Topic 2 | Scrum roles (PO / Scrum Master / Team) | 16–17, 20 |
+| Topic 2 | Scrum artefacts: product/sprint backlog, burndown | 14, 16, 20, 22 |
+| Topic 2 | Incremental & iterative model | 24–27 |
+| Topic 2 | Prototyping model | 29–33 |
+| Topic 2 | Spiral model | 34–35 |
+| Topic 3 | UML & the "4+1" View Model | 6–11 |
+| Topic 3 | Use case relationships «include» / «extend» | 13–14 |
+| Topic 3 | UML class symbol & visibility prefixes | 16–17 |
+| Topic 3 | Class relationships: aggregation/composition/inheritance/association | 19–21 |
+| Topic 3 | State (machine) diagrams | 28–30 |
+| Topic 4 | Sequence diagram | 4–11 |
+| Topic 4 | B-C-E design (MVC) | 14–21 |
+| Topic 4 | Communication diagram | 24, 27 |
+| Topic 4 | Deployment diagram | 34–39 |
+| Topic 5 | Verification vs Validation ("right / right product") | 3 |
+| Topic 5 | Static vs dynamic; software inspections | 5–8 |
+| Topic 5 | Standard test case matrix | 13–14 |
+| Topic 5 | Unit testing | 16–19 |
+| Topic 5 | White-box / black-box testing | 21–25 |
+| Topic 5 | Equivalence partitioning & boundary value analysis | 25–27 |
+| Topic 5 | Integration testing | 28 |
+| Topic 5 | System / performance / acceptance testing | 29 |
+| Topic 5 | Test-Driven Development (TDD) | 30–32 |
+| Topic 6 | Build types (private/integration/release) | 8–9 |
+| Topic 6 | CI principles & practices | 17–21 |
+| Topic 6 | Infrastructure as Code | 26–27 |
+| Topic 6 | Continuous Delivery | 32–34 |
+| Topic 6 | Continuous Deployment | 34–35 |
+| Topic 7 | What is DevOps | 10 |
+| Topic 7 | DevOps vs Agile | 15 |
+| Topic 7 | Tools used in DevOps | 30 |
+| Topic 8 | Kanban board & 5 components | 6–9 |
+| Topic 8 | Kanban vs Scrum | 13 |
+| Topic 8 | XP values (5) | 16–21 |
+| Topic 8 | XP practices (12) | 22–27 |
+| Topic 8 | Spike | 29 |
+| Topic 9 | RUP building blocks (roles/tasks/work products) | 5 |
+| Topic 9 | RUP phases (Inception→Elaboration→Construction→Transition) | 6–8, 12–16 |
+| Topic 10 | CMMI definition | 7 |
+| Topic 10 | 5 Maturity Levels (diagram) | 9 |
+| Topic 10 | Maturity Levels 1–3 (described in text) | 9–12 |
+| Topic 10 | CMMI process-area groups | 13, 23, 29 |
+| Topic 11 | Data-driven development lifecycle | 10–17 |
+| Topic 12 | Subject review (all topics recap) | 1–12 |
+
+### Lab exercises
+
+| Lab PDF | Relevance | Page(s) |
+|---|---|---|
+| Lab 1 | Writing user stories; "Sure Thing Insurance" scenario (Part B practice) | 1–3 |
+| Lab 3 | UML class, sequence, communication & state diagrams (watch, landline) | 1–2 |
+| Lab 5 | Test-Driven Development with JUnit (Calculator example) | 1–2 |
+| Lab 7 | Data-driven development with Weka (diabetes dataset, J48) | 1–2 |
+
+### Notes on page numbering
+- Page = PDF page position as reported by a PDF reader; this matches the on-screen slide order. If your copy of a deck has extra title/section slides, a cited page may be off by one or two — scan ±2 slides around the cited page.
+- The CMMI Levels 4–5 names (Quantitatively Managed, Optimizing) are standard CMMI terminology; on Topic 10 they appear in the diagram on p.9 rather than in extractable slide text (see the accuracy note in §5).
