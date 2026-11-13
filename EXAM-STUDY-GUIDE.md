@@ -281,6 +281,8 @@ Part B gives a project scenario (like the **Sure Thing Insurance** online-claims
 
 **Exam strategy:** Part A rewards precise vocabulary (memorise the drill table). Part B rewards *applying* a concept correctly to the given scenario and *justifying* choices — always tie your answer back to the scenario's facts.
 
+> **Need to draw?** For complete worked **use case descriptions, class diagrams, and sequence diagrams** (with both rendered and paper/ASCII versions, plus a drawing checklist), see **`EXAM-DIAGRAMS-AND-DESCRIPTIONS.md`**.
+
 ---
 
 ## Sources & Citations
