@@ -14,7 +14,7 @@ Each uses the **notation taught in the slides** (Topic 3 for use cases/classes, 
 
 ## PART 1 — Use Case Descriptions
 
-A **use case diagram** shows actors + use cases + relationships. A **use case description** is the *written* detail behind one use case. The slide format (Topic 3 p.11) uses: **Use Case name, Actor, Description, Basic Flow, Alternative Flows.** A fuller exam-grade template adds preconditions/postconditions:
+A **use case diagram** shows actors + use cases + relationships. A **use case description** is the *written* detail behind one use case. The slide format (Topic 3 p.10) uses: **Use Case name, Actor, Description, Basic Flow, Alternative Flows.** The reusable template below adds **Preconditions** and **Postconditions** as helpful exam-detail fields; they are not fields shown in that slide's example:
 
 ### Template (memorise this skeleton)
 ```
@@ -57,7 +57,8 @@ Description:     A policyholder lodges an online claim against a car policy.
 Preconditions:   Policyholder is authenticated and holds an active car policy.
 Basic Flow:
   1. Policyholder selects the car policy to claim against.
-  2. System presents the claim form and charges the excess (processing cost).
+  2. System presents the claim form and calculates/records the applicable excess.
+     If approved, the excess is deducted from the payout; if rejected, a bill is issued.
   3. Policyholder enters claim type (theft or damage), date/time, and location.
   4. For damage: policyholder describes the accident, fault, other party, conditions.
       For theft: policyholder answers locked/garaged/alarmed/steering-locked questions.
@@ -89,37 +90,42 @@ flowchart LR
       UC6((Mark Order Ready))
       UC7((Manage Menu))
       UC8((View Sales Report))
+      UC9((Receive Notification))
+      UC10((Process Payment via Gateway))
     end
 
     student --- UC1
     student --- UC2
+    student --- UC9
     staff --- UC5
     staff --- UC6
     manager --- UC7
     manager --- UC8
-    UC3 --- gateway
+    UC10 --- gateway
 
     UC2 -. include .-> UC3
-    UC2 -. extend .-> UC4
+    UC3 -. include .-> UC10
+    UC4 -. extend .-> UC2
 ```
 
 **ASCII version (what you draw on paper):**
 ```
-            +-------------------------- CampusEats --------------------------+
-            |                                                                |
- Student ---+--( Browse Menu )                                               |
-      \     |                                                                |
-       \----+--( Place Order ) .....include.....> ( Make Payment )---+       |
-            |         :                                              |       |
-            |         `....extend....> ( Apply Promo Code )          |       |
-            |                                                        |       |
- Café Staff-+--( View Order Queue )     ( Mark Order Ready )         |       |
-            |                                                        |       |
- Manager ---+--( Manage Menu )          ( View Sales Report )        |       |
-            |                                                        |       |
-            +--------------------------------------------------------|-------+
-                                                                     |
-                                              Payment Gateway -------+
+           +--------------------------- CampusEats ---------------------------+
+           |                                                                  |
+Student ---+--( Browse Menu )       ( Receive Notification )                  |
+     \     |                                                                  |
+      \----+--( Place Order ) .....«include».....> ( Make Payment )           |
+           |       ^                                      |                   |
+           |       | «extend»                             | «include»         |
+           | ( Apply Promo Code )              ( Process Payment via Gateway ) |
+           |                                                   |               |
+Café Staff-+--( View Order Queue )     ( Mark Order Ready )     |               |
+           |                                                   |               |
+Manager ---+--( Manage Menu )          ( View Sales Report )     |               |
+           |                                                   |               |
+           +---------------------------------------------------|---------------+
+                                                               |
+                                            Payment Gateway ----+
 ```
 - Actor = stick figure (shown as a name on paper). Use case = ellipse. **System boundary** = the box.
 - `«include»` = dashed arrow, compulsory/reused behaviour. `«extend»` = dashed arrow, optional/conditional.
@@ -146,26 +152,35 @@ classDiagram
         -email : String
     }
     class Student {
-        +placeOrder() Order
+        +placeOrder(): Order
     }
     class Staff {
-        +markReady(o : Order) void
+        +markReady(o : Order): void
+    }
+    class OrderScreen {
+        +submitOrder(cart : Cart): void
+        +displayConfirmation(orderId : int): void
+    }
+    class OrderController {
+        +placeOrder(cart : Cart): Order
     }
     class Order {
         -orderId : int
         -status : String
         -placedAt : DateTime
-        +calcTotal() double
+        +create(cart : Cart, total : double): Order
+        +calcTotal(): double
     }
     class OrderLine {
         -quantity : int
-        +subtotal() double
+        +subtotal(): double
     }
     class MenuItem {
         -itemId : int
         -name : String
         -price : double
         -available : boolean
+        +getPrice(): double
     }
     class Cafe {
         -cafeId : int
@@ -175,12 +190,16 @@ classDiagram
         -amount : double
         -method : String
         -status : String
-        +charge(amt : double) boolean
+        +charge(amt : double): boolean
     }
 
     User <|-- Student
     User <|-- Staff
     Student "1" --> "0..*" Order : places
+    OrderScreen --> OrderController : delegates to
+    OrderController --> Order : creates
+    OrderController --> MenuItem : gets prices
+    OrderController --> Payment : charges
     Order "1" *-- "1..*" OrderLine : composed of
     OrderLine "*" --> "1" MenuItem : refers to
     Cafe "1" o-- "*" MenuItem : menu
@@ -207,22 +226,32 @@ classDiagram
                  | 1
                  | places
                  v 0..*
-          +------------------+   1      1..*   +------------------+
-          |      Order       |◆--------------->|   OrderLine      |   (composition = filled diamond on Order)
-          +------------------+  composed of     +------------------+
-          | - orderId : int  |                  | - quantity : int |
-          | - status : String|                  | +subtotal()      |
-          | +calcTotal()     |                  +------------------+
-          +------------------+                          | *
-                 | 1                                    | refers to
-                 | paid by                              v 1
-                 v 1                            +------------------+
-          +------------------+                  |    MenuItem      |
-          |     Payment      |                  +------------------+
-          +------------------+          1   *   | - price : double |
-          | - amount : double|   Cafe ◇-------->| - available      |
-          +------------------+   (aggregation)  +------------------+
++------------------+ delegates +-------------------+ creates +------------------+
+|   OrderScreen    |---------> |  OrderController  | ------> |      Order       |
++------------------+           +-------------------+         +------------------+
+|+submitOrder()    |           |+placeOrder()      |         | - orderId : int  |
+|+displayConfirm() |           +-------------------+         | +create()        |
++------------------+                    |                    | +calcTotal()     |
+                                        | gets prices        +------------------+
+                                        v                           ◆ 1..*
+                                +------------------+             composed of
+                                |    MenuItem      |                   |
+                                +------------------+                   v
+                                | - price : double |          +------------------+
+                                | +getPrice()      |          |   OrderLine      |
+                                +------------------+          +------------------+
+                                                             | - quantity : int |
+              +------------------+                           | +subtotal()      |
+              |     Payment      | <--- charges ------------ +------------------+
+              +------------------+
+              | - amount : double|
+              | +charge()        |
+              +------------------+
+
+ Cafe ◇--------------------> MenuItem       (aggregation = hollow diamond)
 ```
+- `OrderScreen —— OrderController`: **association** — the **Boundary** forwards the student's request to the **Control**.
+- `OrderController —— Order / MenuItem / Payment`: **associations** — the Control coordinates these entities and service during the use case.
 - `Order ◆—— OrderLine`: **composition** — delete the order, its lines die.
 - `Cafe ◇—— MenuItem`: **aggregation** — items belong to a menu but exist independently.
 - `OrderLine —— MenuItem`: **association** — a line just references an item.
@@ -249,7 +278,7 @@ classDiagram
         -dateLodged : Date
     }
     class Assessor {
-        +assess(c : Claim) void
+        +assess(c : Claim): void
     }
 
     Policyholder "1" o-- "*" Policy : portfolio
@@ -284,46 +313,47 @@ Rules from the slides (Topic 4):
 ```mermaid
 sequenceDiagram
     actor Student
+    participant S as :OrderScreen
     participant C as :OrderController
-    participant O as :Order
     participant M as :MenuItem
     participant P as :Payment
     participant G as :PaymentGateway
 
-    Student->>C: placeOrder(cart)
-    C->>O: create()
+    Student->>S: submitOrder(cart)
+    S->>C: placeOrder(cart)
     loop each item in cart
         C->>M: getPrice()
         M-->>C: price
     end
-    C->>O: calcTotal()
-    O-->>C: total
     C->>P: charge(total)
     P->>G: processPayment(total)
     G-->>P: confirmation
     P-->>C: paid
-    C-->>Student: orderConfirmation
+    create participant O as :Order
+    C->>O: create(cart, total)
+    C->>S: displayConfirmation(orderId)
+    S-->>Student: orderConfirmation
 ```
 
 **ASCII version (what you draw on paper):**
 ```
- Student     :OrderController   :Order     :MenuItem    :Payment   :PaymentGateway
-   |               |              |            |            |            |
-   |-placeOrder()->|              |            |            |            |
-   |              |##|            |            |            |            |     (## = focus of control bar)
-   |               |--create()--->|            |            |            |
-   |               |            |##|           |            |            |
-   |               |----getPrice()------------>|            |            |   (loop per item)
-   |               |<- - - - - price - - - - - -|            |            |   (dashed = return)
-   |               |--calcTotal()->|            |            |            |
-   |               |<- - total - - |            |            |            |
-   |               |--charge(total)------------------------>|            |
-   |               |            |              |          |##|           |
-   |               |            |              |            |-processPayment()->|
-   |               |            |              |            |<- - confirmation -|
-   |               |<- - - - - - - - paid - - - - - - - - - |            |
-   |<- - orderConfirmation - - -|              |            |            |
-   |               |              |            |            |            |
+Student       :OrderScreen   :OrderController  :MenuItem   :Payment   :PaymentGateway    :Order
+  |                 |               |              |            |              |           |
+  |-submitOrder()-->|               |              |            |              |           |
+  |                |##|             |              |            |              |           |
+  |                 |-placeOrder()-->|              |            |              |           |
+  |                 |              |##|            |            |              |           |
+  |                 |               |--getPrice()-->|            |              |           |  (loop per item)
+  |                 |               |<- - price - - |            |              |           |  (dashed = return)
+  |                 |               |--charge(total)------------>|              |           |
+  |                 |               |              |           |##|             |           |
+  |                 |               |              |            |-processPayment()->|      |
+  |                 |               |              |            |<- - confirmation -|      |
+  |                 |               |<- - paid - - |            |              |           |
+  |                 |               |----------------create(cart, total)--------------->|  (lifeline begins here)
+  |                 |<-displayConfirmation(orderId)-|              |            |          |
+  |<- - orderConfirmation - -|               |              |            |              |           |
+  |                 |               |              |            |              |           |
 ```
 - Solid arrow `--->` = call (method of the receiver). Dashed arrow `<- -` = return value.
 - The vertical dashed lines are **lifelines**; the `##` blocks are **focus of control**.
@@ -334,26 +364,29 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     actor Policyholder
+    participant F as :ClaimForm
     participant CC as :ClaimController
     participant Pol as :Policy
-    participant Cl as :Claim
     participant Q as :AssessorQueue
 
-    Policyholder->>CC: lodgeClaim(policyNo, details)
+    Policyholder->>F: submitClaim(policyNo, details)
+    F->>CC: lodgeClaim(policyNo, details)
     CC->>Pol: getExcess()
     Pol-->>CC: excess
+    create participant Cl as :Claim
     CC->>Cl: create(details, excess)
     CC->>Cl: validate()
     Cl-->>CC: valid
     CC->>Q: enqueue(claim)
     Q-->>CC: queued
-    CC-->>Policyholder: claimConfirmation(claimId)
+    CC->>F: displayConfirmation(claimId)
+    F-->>Policyholder: claimConfirmation(claimId)
 ```
 
 **Notes to earn marks:**
 - `create(...)` is shown as a message that **creates** the `:Claim` object (its lifeline starts there).
 - If the policyholder *cancels*, you'd show an **X** on the `:Claim` lifeline (object deleted).
-- `:ClaimController` is the **control** class implementing this one use case (B-C-E) — exactly the "glue" role from Topic 4.
+- `:ClaimForm` is the **Boundary** that the policyholder interacts with; `:ClaimController` is the **Control** class that coordinates the use case and links the Boundary to entity classes — exactly the B-C-E "glue" role from Topic 4.
 
 ---
 
@@ -382,7 +415,7 @@ sequenceDiagram
 ## Sources & Citations
 | Artefact | Convention taught on | Source |
 |---|---|---|
-| Use case description format (Actor / Basic Flow / Alternative Flows) | User Authentication example | *UOW 2016 Topic 3.pdf* p.11 |
+| Use case description format (Actor / Basic Flow / Alternative Flows) | User Authentication example | *UOW 2016 Topic 3.pdf* p.10 |
 | Use case diagram: boundary box, actor:use-case multiplicities | | *Topic 3.pdf* p.12 |
 | «include» (compulsory) / «extend» (optional, conditional) | | *Topic 3.pdf* pp.13–14 |
 | Class symbol, 3 compartments, visibility prefixes | | *Topic 3.pdf* pp.16–17 |

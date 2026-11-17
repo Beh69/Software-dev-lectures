@@ -42,8 +42,8 @@ Memorise this sequence — it underpins almost everything:
 
 ### Agile (the "why")
 1990s frustration with waterfall: big gap between requirements and delivery; requirements changed before the product shipped.
-**Agile values (Manifesto):** *Individuals & interactions* over process/tools; *working software* over documentation; *customer collaboration* over contract negotiation; *responding to change* over following a plan.
-Key traits: adaptive planning, iterative/incremental, early & continuous delivery, self-organising cross-functional teams, continuous improvement.
+**Lecture principles:** early and continuous delivery; welcome changing requirements; deliver working software frequently; business people and developers collaborate daily; support motivated, self-organising teams; use face-to-face communication; sustain a steady pace; and improve continuously.
+Key traits: adaptive planning, iterative/incremental development, early delivery, and a rapid, flexible response to change.
 
 ### Scrum (know the roles, events, artefacts)
 - **Roles:** **Product Owner** (defines/prioritises features, decides release content), **Scrum Master** (enables the team, enacts Scrum), **Team** (self-organising, cross-functional).
@@ -111,7 +111,7 @@ Transition parts: **source state → [guard condition] event / action → target
 
 > *Part B modelling flow:* Use case (what) → class diagram (structure) → sequence diagram (behaviour of one use case) → B-C-E/MVC design → code. State diagrams add per-object dynamics.
 
-> **Sources:** user stories — *UOW 2016 Topic 2.pdf* p.15 (also Lab 1 Task 1). 4+1 View Model — *Topic 3.pdf* pp.6–11 and *Topic 4.pdf* (process/development/physical views); use case «include»/«extend» — Topic 3 pp.13–14; class symbol & prefixes — Topic 3 pp.16–17; class relationships (aggregation/composition/inheritance/association) — Topic 3 pp.19–21; state diagrams — Topic 3 pp.28–30 (practised in Lab 3). Sequence diagram — *Topic 4.pdf* pp.4–11; communication diagram — Topic 4 pp.24,27; B-C-E design — Topic 4 pp.14–21; deployment diagram — Topic 4 pp.34–39.
+> **Sources:** user stories — *UOW 2016 Topic 2.pdf* p.15 (also Lab 1 Task 1). 4+1 View Model — *Topic 3.pdf* pp.6–11 and *Topic 4.pdf* pp.2–3 (process/development/physical views); use case «include»/«extend» — Topic 3 pp.13–14; class symbol & prefixes — Topic 3 pp.16–17; class relationships (aggregation/composition/inheritance/association) — Topic 3 pp.19–21; state diagrams — Topic 3 pp.28–30 (practised in Lab 3). Sequence diagram — *Topic 4.pdf* pp.4–11; communication diagram — Topic 4 pp.24,27; B-C-E design — Topic 4 pp.14–21; deployment diagram — Topic 4 pp.34–39.
 
 ---
 
@@ -190,7 +190,7 @@ Developers integrate work **frequently** (several times/day); each integration i
 - **Continuous Deployment** – one step further: if tests pass, the change is deployed to production **automatically**, often several times a day.
 
 ### DevOps
-Unifies **Dev**elopment and IT **Op**erations — removes the "wall of confusion" (different objectives, perspectives, environments, requirements). Teams merge; "**operate what you build**" (Netflix case study). Lifecycle: plan/code/build → test → integrate/release → deploy/operate → monitor.
+Unifies **Dev**elopment and IT **Op**erations — removes the "wall of confusion" caused by different objectives, perspectives, environments, and requirements. Development and operations may be merged into one team, or work with shared responsibility across the lifecycle. "**Operate what you build**" (Netflix case study) describes that shared ownership. Lifecycle: plan/code/build → test → integrate/release → deploy/operate → monitor.
 **DevOps vs Agile:** DevOps spans Dev + Ops (Agile = Dev only); DevOps weights timeliness **and** quality equally; feedback comes from monitoring tools (Agile: from customers).
 **Tool categories:** source repo (Git), build server (Jenkins), configuration management (Puppet/Chef), virtual infrastructure (AWS/Azure), test automation (Selenium).
 
@@ -204,7 +204,7 @@ Unifies **Dev**elopment and IT **Op**erations — removes the "wall of confusion
 **CMMI = Capability Maturity Model Integration** (SEI / Carnegie Mellon, US DoD). A framework of best practices to improve product quality and development efficiency; aligns process improvement with business objectives.
 
 **5 Maturity Levels (the most likely fill-in-the-blank set):**
-1. **Initial/Performed** – unpredictable, poorly controlled, reactive, ad hoc. (XP cited as an example of ad hoc.)
+1. **Initial (performed processes)** – unpredictable, poorly controlled, reactive, ad hoc. (XP cited as an example of ad hoc.)
 2. **Managed** – project level; processes planned, documented, monitored, controlled; skilled people & resources.
 3. **Defined** – organisation level; standard processes deployed org-wide, tailored per guidelines.
 4. **Quantitatively Managed** – processes measured and controlled using quantitative/statistical data.
@@ -214,7 +214,7 @@ Unifies **Dev**elopment and IT **Op**erations — removes the "wall of confusion
 Progressing one level up typically takes ~2–3 years; better suited to large organisations.
 
 > **Sources:** CMMI definition — *UOW 2016 Topic 10.pdf* p.7; the "5 Maturity Levels" diagram — Topic 10 p.9; Levels 1–3 described in text — Topic 10 pp.9–12; process-area groups — Topic 10 pp.13,23,29.
-> **⚠️ Accuracy note:** the slides spell out Levels 1–3 in text (Initial/Performed, Managed, Defined). The names **Level 4 = Quantitatively Managed** and **Level 5 = Optimizing** come from the standard CMMI model — on the slide they appear only inside the "5 Maturity Levels" diagram (p.9), which did not extract as text. They are the standard, widely-used names; if your lecturer used different wording on that diagram, defer to the slide.
+> **⚠️ Accuracy note:** the slides describe Level 1 as **performed processes**, Level 2 as **Managed**, and Level 3 as **Defined**. In standard CMMI terminology, Level 1 is named **Initial**, and Levels 4–5 are **Quantitatively Managed** and **Optimizing**. The Level 4–5 names appear only inside the slide's "5 Maturity Levels" diagram (p.9), which did not extract as text. If your lecturer used different wording on the diagram, defer to the slide.
 
 *(Bonus — Topic 11, Data-driven development, if examined: lifecycle = model requirements → data collection → cleaning → labelling → feature engineering → model training → evaluation → deployment → monitoring. Evaluation metrics: precision, recall, F-measure. Lab 7 used Weka + the diabetes dataset with J48 decision tree. **Source:** *UOW 2016 Topic 11.pdf* pp.10–17; Lab 7.)*
 

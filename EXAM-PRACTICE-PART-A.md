@@ -1,7 +1,7 @@
 # CSIT314 — Part A Practice: Fill-in-the-Blank
 
 **Format reminder:** Part A = 9 questions, 10 blanks, 10 marks. Each blank is one term or short phrase.
-Below are **three full practice sets (30 blanks total)** mirroring the real style, followed by a complete **answer key**. Cover the answer key and attempt each set under ~10 minutes.
+Below are **three practice sets** with 10 questions each and multiple blanks, followed by a complete **answer key**. Cover the answer key and attempt each set under ~10 minutes.
 
 ---
 
@@ -57,7 +57,7 @@ Below are **three full practice sets (30 blanks total)** mirroring the real styl
 
 **Q1.** The software process model best suited to a project with unclear requirements and a UI focus, where a quick working model is built and then discarded, is ______.
 
-**Q2.** The Agile Manifesto values working software over ______, and responding to change over ______.
+**Q2.** Agile methods welcome ______ requirements and prefer delivering ______ software frequently.
 
 **Q3.** A UML ______ diagram shows the states one object passes through in response to events; an optional ______ on a transition decides whether it fires.
 
@@ -94,7 +94,7 @@ Below are **three full practice sets (30 blanks total)** mirroring the real styl
 
 ### Set 2
 1. **Corrective** / **Adaptive** — *T1 p.31*
-2. **Process** / **Use case (scenario)** — *T3 pp.6–11; T4*
+2. **Process** / **Use case (scenario)** — *T3 pp.6–9; T4 pp.2–3*
 3. **Product Owner** / **Scrum Master** — *T2 pp.16–17,20*
 4. **Boundary (View)** / **Entity (Model)** — *T4 pp.14–21*
 5. **Equivalence partitioning** / **Boundary value analysis** — *T5 pp.25–27*
@@ -106,7 +106,7 @@ Below are **three full practice sets (30 blanks total)** mirroring the real styl
 
 ### Set 3
 1. **Prototyping** — *T2 pp.29–33*
-2. **comprehensive documentation** / **following a plan** — *T8 (Agile vs Waterfall table); T2 pp.6–10*
+2. **changing** / **working** — *T2 pp.8–10*
 3. **state (machine)** / **guard condition** — *T3 pp.28–30*
 4. **sequence** / **communication** — *T4 pp.4–11, 24, 27*
 5. **Velocity** — *T2 p.22; T8 (Kanban vs Scrum) p.13*
