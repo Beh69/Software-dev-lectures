@@ -142,29 +142,37 @@ Class box = **three compartments: name / attributes / methods**. Visibility pref
 - **Inheritance** ——▷ "is-a" (hollow triangle at the parent).
 - **Association** —— generic "uses / has-a" (plain line, with multiplicities like `1`, `0..*`).
 
+**B-C-E labels belong in design models, not requirement models.** Do **not** put them in a use case diagram or use case description. Add them to design class and sequence diagrams as UML stereotypes: `«boundary»`, `«control»`, and `«entity»`. The worked diagrams below demonstrate this convention.
+
 ### Example A — CampusEats
 
 ```mermaid
 classDiagram
     class User {
+        <<entity>>
         -id : int
         -name : String
         -email : String
     }
     class Student {
+        <<entity>>
         +placeOrder(): Order
     }
     class Staff {
+        <<entity>>
         +markReady(o : Order): void
     }
     class OrderScreen {
+        <<boundary>>
         +submitOrder(cart : Cart): void
         +displayConfirmation(orderId : int): void
     }
     class OrderController {
+        <<control>>
         +placeOrder(cart : Cart): Order
     }
     class Order {
+        <<entity>>
         -orderId : int
         -status : String
         -placedAt : DateTime
@@ -172,10 +180,12 @@ classDiagram
         +calcTotal(): double
     }
     class OrderLine {
+        <<entity>>
         -quantity : int
         +subtotal(): double
     }
     class MenuItem {
+        <<entity>>
         -itemId : int
         -name : String
         -price : double
@@ -183,10 +193,12 @@ classDiagram
         +getPrice(): double
     }
     class Cafe {
+        <<entity>>
         -cafeId : int
         -name : String
     }
     class Payment {
+        <<entity>>
         -amount : double
         -method : String
         -status : String
@@ -207,51 +219,44 @@ classDiagram
 ```
 
 **ASCII version (what you draw on paper):**
-```
-                 +------------------+
-                 |      User        |
-                 +------------------+
-                 | - id : int       |
-                 | - name : String  |
-                 | - email : String |
-                 +------------------+
-                        /_\                 (inheritance = hollow triangle)
-                   ______|______
-                  |             |
-          +---------------+  +---------------+
-          |   Student     |  |    Staff      |
-          +---------------+  +---------------+
-          | +placeOrder() |  | +markReady()  |
-          +---------------+  +---------------+
-                 | 1
-                 | places
-                 v 0..*
-+------------------+ delegates +-------------------+ creates +------------------+
-|   OrderScreen    |---------> |  OrderController  | ------> |      Order       |
-+------------------+           +-------------------+         +------------------+
-|+submitOrder()    |           |+placeOrder()      |         | - orderId : int  |
-|+displayConfirm() |           +-------------------+         | +create()        |
-+------------------+                    |                    | +calcTotal()     |
-                                        | gets prices        +------------------+
-                                        v                           ◆ 1..*
-                                +------------------+             composed of
-                                |    MenuItem      |                   |
-                                +------------------+                   v
-                                | - price : double |          +------------------+
-                                | +getPrice()      |          |   OrderLine      |
-                                +------------------+          +------------------+
-                                                             | - quantity : int |
-              +------------------+                           | +subtotal()      |
-              |     Payment      | <--- charges ------------ +------------------+
-              +------------------+
-              | - amount : double|
-              | +charge()        |
-              +------------------+
+```text
+                       +------------------+
+                       |  «entity» User   |
+                       +------------------+
+                          /_\
+                     ______|______
+                    |             |
+          +----------------+ +----------------+
+          | «entity»       | | «entity»       |
+          | Student        | | Staff          |
+          +----------------+ +----------------+
 
- Cafe ◇--------------------> MenuItem       (aggregation = hollow diamond)
++---------------------+ delegates +--------------------------+
+| «boundary»          |---------> | «control»                |
+| OrderScreen         |           | OrderController          |
++---------------------+           +--------------------------+
+                                            | creates / coordinates
+              +-----------------------------+-----------------------------+
+              |                             |                             |
+              v                             v                             v
+   +-------------------+         +-------------------+         +-------------------+
+   | «entity» Order    |◆------->| «entity»          |         | «entity» Payment  |
+   +-------------------+ composed | OrderLine         |         +-------------------+
+                                 +-------------------+
+                                            |
+                                            | refers to
+                                            v
+                                 +-------------------+
+                                 | «entity»          |
+                                 | MenuItem           |
+                                 +-------------------+
+
+   +-------------------+
+   | «entity» Cafe     |◇--------------------------> MenuItem
+   +-------------------+  aggregation
 ```
-- `OrderScreen —— OrderController`: **association** — the **Boundary** forwards the student's request to the **Control**.
-- `OrderController —— Order / MenuItem / Payment`: **associations** — the Control coordinates these entities and service during the use case.
+- `OrderScreen —— OrderController`: **association** — the **`«boundary»`** forwards the student's request to the **`«control»`**.
+- `OrderController —— Order / MenuItem / Payment`: **associations** — the **`«control»`** coordinates these **`«entity»`** classes and service during the use case.
 - `Order ◆—— OrderLine`: **composition** — delete the order, its lines die.
 - `Cafe ◇—— MenuItem`: **aggregation** — items belong to a menu but exist independently.
 - `OrderLine —— MenuItem`: **association** — a line just references an item.
@@ -262,22 +267,30 @@ classDiagram
 ```mermaid
 classDiagram
     class Policyholder {
+        <<entity>>
         -name : String
         -address : String
     }
     class Policy {
+        <<entity>>
         -policyNo : String
         -premium : double
         -excess : double
     }
-    class CarPolicy
-    class HomePolicy
+    class CarPolicy {
+        <<entity>>
+    }
+    class HomePolicy {
+        <<entity>>
+    }
     class Claim {
+        <<entity>>
         -claimId : int
         -status : String
         -dateLodged : Date
     }
     class Assessor {
+        <<entity>>
         +assess(c : Claim): void
     }
 
@@ -313,10 +326,10 @@ Rules from the slides (Topic 4):
 ```mermaid
 sequenceDiagram
     actor Student
-    participant S as :OrderScreen
-    participant C as :OrderController
-    participant M as :MenuItem
-    participant P as :Payment
+    participant S as «boundary» :OrderScreen
+    participant C as «control» :OrderController
+    participant M as «entity» :MenuItem
+    participant P as «entity» :Payment
     participant G as :PaymentGateway
 
     Student->>S: submitOrder(cart)
@@ -329,7 +342,7 @@ sequenceDiagram
     P->>G: processPayment(total)
     G-->>P: confirmation
     P-->>C: paid
-    create participant O as :Order
+    create participant O as «entity» :Order
     C->>O: create(cart, total)
     C->>S: displayConfirmation(orderId)
     S-->>Student: orderConfirmation
@@ -337,7 +350,8 @@ sequenceDiagram
 
 **ASCII version (what you draw on paper):**
 ```
-Student       :OrderScreen   :OrderController  :MenuItem   :Payment   :PaymentGateway    :Order
+Student       «boundary»         «control»           «entity»     «entity»   :PaymentGateway   «entity»
+              :OrderScreen     :OrderController      :MenuItem     :Payment                    :Order
   |                 |               |              |            |              |           |
   |-submitOrder()-->|               |              |            |              |           |
   |                |##|             |              |            |              |           |
@@ -356,6 +370,7 @@ Student       :OrderScreen   :OrderController  :MenuItem   :Payment   :PaymentGa
   |                 |               |              |            |              |           |
 ```
 - Solid arrow `--->` = call (method of the receiver). Dashed arrow `<- -` = return value.
+- Stereotypes identify each role: **Boundary** receives actor interaction, **Control** coordinates the use case, and **Entity** represents domain/persistent data. `:PaymentGateway` is an external system, so it has no B-C-E stereotype.
 - The vertical dashed lines are **lifelines**; the `##` blocks are **focus of control**.
 - `Student` initiates, so it's on the **left**; the external `PaymentGateway` is furthest right.
 
@@ -364,16 +379,16 @@ Student       :OrderScreen   :OrderController  :MenuItem   :Payment   :PaymentGa
 ```mermaid
 sequenceDiagram
     actor Policyholder
-    participant F as :ClaimForm
-    participant CC as :ClaimController
-    participant Pol as :Policy
-    participant Q as :AssessorQueue
+    participant F as «boundary» :ClaimForm
+    participant CC as «control» :ClaimController
+    participant Pol as «entity» :Policy
+    participant Q as «entity» :AssessorQueue
 
     Policyholder->>F: submitClaim(policyNo, details)
     F->>CC: lodgeClaim(policyNo, details)
     CC->>Pol: getExcess()
     Pol-->>CC: excess
-    create participant Cl as :Claim
+    create participant Cl as «entity» :Claim
     CC->>Cl: create(details, excess)
     CC->>Cl: validate()
     Cl-->>CC: valid
@@ -399,12 +414,14 @@ sequenceDiagram
 
 **Class diagram**
 - [ ] Three compartments; visibility prefixes on attributes/methods.
+- [ ] Apply `«boundary»`, `«control»`, or `«entity»` where the B-C-E design model is requested.
 - [ ] Correct relationship symbol: composition (filled ◆) vs aggregation (hollow ◇) vs inheritance (▷) vs association (plain line).
 - [ ] Multiplicities on associations (`1`, `0..*`, `1..*`).
 
 **Sequence diagram**
 - [ ] One use case; initiator on the left.
 - [ ] `instance:Class` labels; lifelines; focus-of-control bars.
+- [ ] Mark B-C-E participants with stereotypes: `«boundary»`, `«control»`, and `«entity»`; leave external systems unlabelled.
 - [ ] Solid filled arrow for calls, dashed open arrow for returns.
 - [ ] Consistent with the class diagram (messages = methods that exist on the receiver's class).
 

@@ -49,14 +49,14 @@ Using the template **"As a `<user>`, I want `<goal>` so that `<reason>`":**
 ## Q3 (6 marks) — Class diagram (describe, with relationships)
 
 **Classes (with sample attributes/methods):**
-- `Student` — `- id:int`, `- name:String`, `- email:String`, `+ placeOrder():Order`
-- `Order` — `- orderId:int`, `- status:String`, `- placedAt:DateTime`, `+ create(cart:Cart, total:double):Order`, `+ calcTotal():double`
-- `OrderLine` — `- quantity:int`, `+ subtotal():double`
-- `MenuItem` — `- itemId:int`, `- name:String`, `- price:double`, `- available:boolean`, `+ getPrice():double`
-- `Cafe` — `- cafeId:int`, `- name:String`
-- `Payment` — `- amount:double`, `- method:String`, `- status:String`, `+ charge(amt:double):boolean`
-- `OrderScreen` — `+ submitOrder(cart):void`, `+ displayConfirmation(orderId:int):void` (**Boundary**: actor-facing UI)
-- `OrderController` — `+ placeOrder(cart):Order` (**Control**: coordinates this use case)
+- `Student` — **`«entity»`**: `- id:int`, `- name:String`, `- email:String`, `+ placeOrder():Order`
+- `Order` — **`«entity»`**: `- orderId:int`, `- status:String`, `- placedAt:DateTime`, `+ create(cart:Cart, total:double):Order`, `+ calcTotal():double`
+- `OrderLine` — **`«entity»`**: `- quantity:int`, `+ subtotal():double`
+- `MenuItem` — **`«entity»`**: `- itemId:int`, `- name:String`, `- price:double`, `- available:boolean`, `+ getPrice():double`
+- `Cafe` — **`«entity»`**: `- cafeId:int`, `- name:String`
+- `Payment` — **`«entity»`**: `- amount:double`, `- method:String`, `- status:String`, `+ charge(amt:double):boolean`
+- `OrderScreen` — **`«boundary»`**: `+ submitOrder(cart):void`, `+ displayConfirmation(orderId:int):void` (actor-facing UI)
+- `OrderController` — **`«control»`**: `+ placeOrder(cart):Order` (coordinates this use case)
 - `Manager` and `Staff` — specialised users.
 
 **Relationships (choose the right one — this is where marks are won/lost):**
@@ -64,8 +64,8 @@ Using the template **"As a `<user>`, I want `<goal>` so that `<reason>`":**
 - `OrderLine` **association** `MenuItem` — a line *refers to* a menu item (the item exists independently). Plain line, multiplicity 1.
 - `Cafe` **aggregation** `MenuItem` — a menu item *is part of* a café's menu but can exist independently (e.g. shared/reused items). Hollow diamond at `Cafe`.
 - `Student` **association** `Order` (1 → 0..*) — a student places many orders.
-- `OrderScreen` **association** `OrderController` — the Boundary forwards the student's request to the use-case Control.
-- `OrderController` **association** `Order`, `MenuItem`, and `Payment` — the Control coordinates the entities and payment service for this use case.
+- `OrderScreen` **association** `OrderController` — the **`«boundary»`** forwards the student's request to the **`«control»`**.
+- `OrderController` **association** `Order`, `MenuItem`, and `Payment` — the **`«control»`** coordinates these **`«entity»`** classes and service for this use case.
 - `Staff` and `Manager` **inheritance** from a general `User` superclass — "is-a".
 
 > **Why it scores:** correct notation (visibility prefixes, multiplicities) and — crucially — **justified** relationship types: composition vs aggregation vs association vs inheritance, each matched to the scenario's facts.
@@ -75,16 +75,16 @@ Using the template **"As a `<user>`, I want `<goal>` so that `<reason>`":**
 ## Q4 (5 marks) — Sequence diagram for *Place Order* (describe)
 
 One sequence diagram per use case. Objects left→right (initiator on the left):
-`:Student` → `:OrderScreen` (**Boundary**) → `:OrderController` (**Control**) → `:MenuItem` / `:Payment` → `:PaymentGateway` → `:Order` (**Entity**)
+`:Student` → `«boundary» :OrderScreen` → `«control» :OrderController` → `«entity» :MenuItem` / `«entity» :Payment` → `:PaymentGateway` → `«entity» :Order`
 
 Message flow (top→bottom = time):
-1. `Student` → `OrderScreen` : `submitOrder(cart)`
-2. `OrderScreen` → `OrderController` : `placeOrder(cart)`
-3. loop for each cart item: `OrderController` → `MenuItem` : `getPrice()` → *return price* (dashed arrow)
-4. `OrderController` → `Payment` : `charge(total)`
-5. `Payment` → `PaymentGateway` : `processPayment(total)` → *return confirmation*
-6. On successful payment, `OrderController` → `Order` : `create(cart, total)`
-7. `OrderController` → `OrderScreen` : `displayConfirmation(orderId)` → *return confirmation to Student*
+1. `Student` → `«boundary» :OrderScreen` : `submitOrder(cart)`
+2. `«boundary» :OrderScreen` → `«control» :OrderController` : `placeOrder(cart)`
+3. loop for each cart item: `«control» :OrderController` → `«entity» :MenuItem` : `getPrice()` → *return price* (dashed arrow)
+4. `«control» :OrderController` → `«entity» :Payment` : `charge(total)`
+5. `«entity» :Payment` → `PaymentGateway` : `processPayment(total)` → *return confirmation*
+6. On successful payment, `«control» :OrderController` → `«entity» :Order` : `create(cart, total)`
+7. `«control» :OrderController` → `«boundary» :OrderScreen` : `displayConfirmation(orderId)` → *return confirmation to Student*
 
 Notation: activation bars (focus of control) over each lifeline while active; solid filled arrows for calls, dashed open arrows for returns.
 
