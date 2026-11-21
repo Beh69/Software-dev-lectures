@@ -42,6 +42,44 @@ Using the template **"As a `<user>`, I want `<goal>` so that `<reason>`":**
 - *Make Payment* → **«include»** → *Process Payment via Gateway*; the Payment Gateway actor participates in this included use case.
 - *Apply Promo Code* → **«extend»** → *Place Order* (optional, only when the student has a code).
 
+**Diagram answer:**
+
+```mermaid
+flowchart LR
+    student([Student])
+    staff([Café Staff])
+    manager([Café Manager])
+    gateway([Payment Gateway])
+
+    subgraph CampusEats
+      UC1((Browse Menu))
+      UC2((Place Order))
+      UC3((Make Payment))
+      UC4((Apply Promo Code))
+      UC5((View Order Queue))
+      UC6((Mark Order Ready))
+      UC7((Manage Menu))
+      UC8((View Sales Report))
+      UC9((Receive Notification))
+      UC10((Process Payment via Gateway))
+    end
+
+    student --- UC1
+    student --- UC2
+    student --- UC9
+    staff --- UC5
+    staff --- UC6
+    manager --- UC7
+    manager --- UC8
+    UC10 --- gateway
+
+    UC2 -. «include» .-> UC3
+    UC3 -. «include» .-> UC10
+    UC4 -. «extend» .-> UC2
+```
+
+> **How to read it:** the dashed `«include»` arrows represent compulsory behaviour. The dashed `«extend»` arrow starts at *Apply Promo Code* and points to its base use case, *Place Order*, because applying a code is optional.
+
 > **Why it scores:** actors + boundary + correct use of **«include»** (compulsory/reused) vs **«extend»** (optional/conditional), and the external system modelled as an actor.
 
 ---
@@ -68,6 +106,88 @@ Using the template **"As a `<user>`, I want `<goal>` so that `<reason>`":**
 - `OrderController` **association** `Order`, `MenuItem`, and `Payment` — the **`«control»`** coordinates these **`«entity»`** classes and service for this use case.
 - `Staff` and `Manager` **inheritance** from a general `User` superclass — "is-a".
 
+**Diagram answer:**
+
+```mermaid
+classDiagram
+    class User {
+        <<entity>>
+        -id : int
+        -name : String
+        -email : String
+    }
+    class Student {
+        <<entity>>
+        +placeOrder(): Order
+    }
+    class Staff {
+        <<entity>>
+        +markReady(o : Order): void
+    }
+    class Manager {
+        <<entity>>
+        +manageMenu(): void
+        +viewSalesReport(): void
+    }
+    class OrderScreen {
+        <<boundary>>
+        +submitOrder(cart : Cart): void
+        +displayConfirmation(orderId : int): void
+    }
+    class OrderController {
+        <<control>>
+        +placeOrder(cart : Cart): Order
+    }
+    class Order {
+        <<entity>>
+        -orderId : int
+        -status : String
+        -placedAt : DateTime
+        +create(cart : Cart, total : double): Order
+        +calcTotal(): double
+    }
+    class OrderLine {
+        <<entity>>
+        -quantity : int
+        +subtotal(): double
+    }
+    class MenuItem {
+        <<entity>>
+        -itemId : int
+        -name : String
+        -price : double
+        -available : boolean
+        +getPrice(): double
+    }
+    class Cafe {
+        <<entity>>
+        -cafeId : int
+        -name : String
+    }
+    class Payment {
+        <<entity>>
+        -amount : double
+        -method : String
+        -status : String
+        +charge(amt : double): boolean
+    }
+
+    User <|-- Student
+    User <|-- Staff
+    User <|-- Manager
+    Student "1" --> "0..*" Order : places
+    OrderScreen --> OrderController : delegates to
+    OrderController --> Order : creates
+    OrderController --> MenuItem : gets prices
+    OrderController --> Payment : charges
+    Order "1" *-- "1..*" OrderLine : composed of
+    OrderLine "*" --> "1" MenuItem : refers to
+    Cafe "1" o-- "*" MenuItem : menu
+    Order "1" --> "1" Payment : paid by
+```
+
+> **How to read it:** `<<boundary>>` handles actor interaction, `<<control>>` coordinates this use case, and `<<entity>>` holds business-domain data. Filled diamond = composition; hollow diamond = aggregation; hollow triangle = inheritance.
+
 > **Why it scores:** correct notation (visibility prefixes, multiplicities) and — crucially — **justified** relationship types: composition vs aggregation vs association vs inheritance, each matched to the scenario's facts.
 
 ---
@@ -87,6 +207,37 @@ Message flow (top→bottom = time):
 7. `«control» :OrderController` → `«boundary» :OrderScreen` : `displayConfirmation(orderId)` → *return confirmation to Student*
 
 Notation: activation bars (focus of control) over each lifeline while active; solid filled arrows for calls, dashed open arrows for returns.
+
+**Diagram answer:**
+
+```mermaid
+sequenceDiagram
+    actor Student
+    participant S as «boundary» :OrderScreen
+    participant C as «control» :OrderController
+    participant M as «entity» :MenuItem
+    participant P as «entity» :Payment
+    participant G as :PaymentGateway
+
+    Student->>+S: submitOrder(cart)
+    S->>+C: placeOrder(cart)
+    loop each item in cart
+        C->>+M: getPrice()
+        M-->>-C: price
+    end
+    C->>+P: charge(total)
+    P->>+G: processPayment(total)
+    G-->>-P: confirmation
+    P-->>-C: paid
+    create participant O as «entity» :Order
+    C->>+O: create(cart, total)
+    O-->>-C: orderId
+    C->>S: displayConfirmation(orderId)
+    deactivate C
+    S-->>-Student: orderConfirmation
+```
+
+> **How to read it:** the activation bars are created by `->>+` and closed by `-->>-` (or `deactivate`). A solid arrow remains a method call even when it points left, so `OrderController → OrderScreen : displayConfirmation(...)` is solid. The final dashed arrow returns the result of the student's original `submitOrder(...)` call.
 
 > **Why it scores:** models **one** use case; initiator on the left; correctly applies **B-C-E** (the actor calls a Boundary class, which delegates to the Control); correct call/return arrows; interaction with the external gateway shown. Each **internal** receiver has a matching operation in the class diagram.
 
