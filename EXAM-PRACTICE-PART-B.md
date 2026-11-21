@@ -103,7 +103,7 @@ flowchart LR
 - `Manager` and `Staff` — specialised users.
 
 **Relationships (choose the right one — this is where marks are won/lost):**
-- `Student` **association** `Cart` (1 → 0..1) — a student has at most one active cart; `Student` **association** `Order` (1 → 0..*) — a student places many orders.
+- `Student` **association** `Cart` (1 to 0..1) — a student has at most one active cart; `Student` **association** `Order` (1 to 0..*) — a student places many orders.
 - `Cart` **composition** `CartLine` — cart lines do not exist without their cart; `CartLine` **association** `MenuItem` — each line refers to one independently existing menu item.
 - `Order` **composition** `OrderLine` — an order line cannot exist without its order; `OrderLine` **association** `MenuItem` — a line records the ordered item.
 - `Order` **composition** `Payment` — a successful order stores its payment record.
@@ -195,22 +195,22 @@ classDiagram
     User <|-- Student
     User <|-- Staff
     User <|-- Manager
-    Student "1" --> "0..1" Cart : owns
-    Student "1" --> "0..*" Order : places
+    Student "1" -- "0..1" Cart : owns
+    Student "1" -- "0..*" Order : places
     Cart "1" *-- "0..*" CartLine : contains
-    CartLine "*" --> "1" MenuItem : refers to
+    CartLine "*" -- "1" MenuItem : refers to
     OrderScreen --> OrderController : delegates to
     OrderController --> Cart : reads
     OrderController --> Order : creates
     OrderController --> OrderQueue : enqueues
     Order "1" *-- "1..*" OrderLine : contains
-    OrderLine "*" --> "1" MenuItem : refers to
+    OrderLine "*" -- "1" MenuItem : refers to
     Order "1" *-- "1" Payment : records
     Cafe "1" o-- "*" MenuItem : menu
     Cafe "1" *-- "1" OrderQueue : has
 ```
 
-> **How to read it:** `<<boundary>>` handles actor interaction, `<<control>>` coordinates this use case, and `<<entity>>` holds business-domain data. Filled diamond = composition; hollow diamond = aggregation; hollow triangle = inheritance.
+> **How to read it:** `<<boundary>>` handles actor interaction, `<<control>>` coordinates this use case, and `<<entity>>` holds business-domain data. **Plain lines between entity classes are associations, not a left-to-right workflow.** Filled diamond = composition; hollow diamond = aggregation; hollow triangle = inheritance. Arrowheads are reserved here for the directed Boundary→Control delegation and Control dependencies.
 
 > **Why it scores:** correct notation (visibility prefixes, multiplicities) and — crucially — **justified** relationship types: composition vs aggregation vs association vs inheritance, each matched to the scenario's facts.
 

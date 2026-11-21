@@ -149,6 +149,8 @@ Class box = **three compartments: name / attributes / methods**. Visibility pref
 - **Inheritance** ——▷ "is-a" (hollow triangle at the parent).
 - **Association** —— generic "uses / has-a" (plain line, with multiplicities like `1`, `0..*`).
 
+> **Arrowhead rule:** for an exam class diagram, use a plain association line unless you need to show navigability or a directed dependency. An arrowhead does **not** show time/order of execution. The sequence diagram, not the class diagram, shows message flow.
+
 **B-C-E labels belong in design models, not requirement models.** Do **not** put them in a use case diagram or use case description. Add them to design class and sequence diagrams as UML stereotypes: `«boundary»`, `«control»`, and `«entity»`. The worked diagrams below demonstrate this convention.
 
 ### Example A — CampusEats
@@ -230,16 +232,16 @@ classDiagram
 
     User <|-- Student
     User <|-- Staff
-    Student "1" --> "0..1" Cart : owns
-    Student "1" --> "0..*" Order : places
+    Student "1" -- "0..1" Cart : owns
+    Student "1" -- "0..*" Order : places
     Cart "1" *-- "0..*" CartLine : contains
-    CartLine "*" --> "1" MenuItem : refers to
+    CartLine "*" -- "1" MenuItem : refers to
     OrderScreen --> OrderController : delegates to
     OrderController --> Cart : reads
     OrderController --> Order : creates
     OrderController --> OrderQueue : enqueues
     Order "1" *-- "1..*" OrderLine : contains
-    OrderLine "*" --> "1" MenuItem : refers to
+    OrderLine "*" -- "1" MenuItem : refers to
     Order "1" *-- "1" Payment : records
     Cafe "1" o-- "*" MenuItem : menu
     Cafe "1" *-- "1" OrderQueue : has
@@ -247,11 +249,11 @@ classDiagram
 
 **ASCII version (what you draw on paper):**
 ```text
-Student ──owns──> «entity» Cart ◆──> «entity» CartLine ──refers to──> «entity» MenuItem
+Student ──owns── «entity» Cart ◆── «entity» CartLine ──refers to── «entity» MenuItem
    |                        |
    | places                 | checked out into
    v                        v
-«entity» Order ◆─────────> «entity» OrderLine ──refers to──> «entity» MenuItem
+«entity» Order ◆────────── «entity» OrderLine ──refers to── «entity» MenuItem
    |
    ◆ records
    v
@@ -261,8 +263,8 @@ Student ──owns──> «entity» Cart ◆──> «entity» CartLine ──r
                                                 | reads / creates / enqueues
                                                 +──> Cart, Order, «entity» OrderQueue
 
-«entity» Cafe ◇──> MenuItem
-«entity» Cafe ◆──> OrderQueue
+«entity» Cafe ◇── MenuItem
+«entity» Cafe ◆── OrderQueue
 ```
 
 This compact sketch shows the important scope: the cart is separate from the final order, so `CartLine` and `OrderLine` have separate lifecycles. The `OrderController` creates and queues an order only after payment authorisation succeeds.
