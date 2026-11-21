@@ -35,12 +35,12 @@ Using the template **"As a `<user>`, I want `<goal>` so that `<reason>`":**
 **System boundary box:** "CampusEats".
 
 **Use cases and associations:**
-- Student → *Browse Menu*, *Place Order*, *Receive Notification*.
+- Student → *Browse Menu*, *Place Order*, *Receive Order-Ready Notification*.
 - Café Staff → *View Order Queue*, *Mark Order Ready*.
 - Café Manager → *Manage Menu*, *View Sales Report*.
 - *Place Order* → **«include»** → *Make Payment* (every order must be paid).
 - *Make Payment* → **«include»** → *Process Payment via Gateway*; the Payment Gateway actor participates in this included use case.
-- *Apply Promo Code* → **«extend»** → *Place Order* (optional, only when the student has a code).
+- *Mark Order Ready* → **«include»** → *Notify Student Order Ready* (notification always follows a successful ready update).
 
 **Diagram answer:**
 
@@ -55,55 +55,61 @@ flowchart LR
       UC1((Browse Menu))
       UC2((Place Order))
       UC3((Make Payment))
-      UC4((Apply Promo Code))
-      UC5((View Order Queue))
-      UC6((Mark Order Ready))
+      UC4((View Order Queue))
+      UC5((Mark Order Ready))
+      UC6((Notify Student Order Ready))
       UC7((Manage Menu))
       UC8((View Sales Report))
-      UC9((Receive Notification))
+      UC9((Receive Order-Ready Notification))
       UC10((Process Payment via Gateway))
     end
 
     student --- UC1
     student --- UC2
     student --- UC9
+    staff --- UC4
     staff --- UC5
-    staff --- UC6
     manager --- UC7
     manager --- UC8
     UC10 --- gateway
 
     UC2 -. «include» .-> UC3
     UC3 -. «include» .-> UC10
-    UC4 -. «extend» .-> UC2
+    UC5 -. «include» .-> UC6
 ```
 
-> **How to read it:** the dashed `«include»` arrows represent compulsory behaviour. The dashed `«extend»` arrow starts at *Apply Promo Code* and points to its base use case, *Place Order*, because applying a code is optional.
+> **How to read it:** the dashed `«include»` arrows represent compulsory behaviour. *Place Order* includes payment; *Make Payment* includes the external payment processing; and *Mark Order Ready* includes notifying the student.
 
-> **Why it scores:** actors + boundary + correct use of **«include»** (compulsory/reused) vs **«extend»** (optional/conditional), and the external system modelled as an actor.
+> **Why it scores:** actors + boundary + correct use of **«include»** (compulsory/reused), including the required order-ready notification, and the external payment system modelled as an actor.
 
 ---
 
 ## Q3 (6 marks) — Class diagram (describe, with relationships)
 
+**Scope:** this diagram models browsing/cart data and the **Place Order** use case through successful authorisation and queueing. The separate *Mark Order Ready → Notify Student Order Ready* behaviour belongs to a later use case, not this sequence.
+
 **Classes (with sample attributes/methods):**
-- `Student` — **`«entity»`**: `- id:int`, `- name:String`, `- email:String`, `+ placeOrder():Order`
-- `Order` — **`«entity»`**: `- orderId:int`, `- status:String`, `- placedAt:DateTime`, `+ create(cart:Cart, total:double):Order`, `+ calcTotal():double`
+- `Student` — **`«entity»`**: `- id:int`, `- name:String`, `- email:String`
+- `Cart` — **`«entity»`**: `- cartId:int`, `+ addItem(item:MenuItem, quantity:int):void`, `+ getItems():CartLine[]`, `+ calculateTotal():double`
+- `CartLine` — **`«entity»`**: `- quantity:int`, `+ subtotal():double`
+- `Order` — **`«entity»`**: `- orderId:int`, `- fulfilmentStatus:String`, `- placedAt:DateTime`, `+ setQueued():void`, `+ calcTotal():double`
 - `OrderLine` — **`«entity»`**: `- quantity:int`, `+ subtotal():double`
 - `MenuItem` — **`«entity»`**: `- itemId:int`, `- name:String`, `- price:double`, `- available:boolean`, `+ getPrice():double`
 - `Cafe` — **`«entity»`**: `- cafeId:int`, `- name:String`
-- `Payment` — **`«entity»`**: `- amount:double`, `- method:String`, `- status:String`, `+ charge(amt:double):boolean`
-- `OrderScreen` — **`«boundary»`**: `+ submitOrder(cart):void`, `+ displayConfirmation(orderId:int):void` (actor-facing UI)
-- `OrderController` — **`«control»`**: `+ placeOrder(cart):Order` (coordinates this use case)
+- `Payment` — **`«entity»`**: `- amount:double`, `- status:String`, `- authorisationRef:String`
+- `OrderQueue` — **`«entity»`**: `+ enqueue(order:Order):void`
+- `OrderScreen` — **`«boundary»`**: `+ submitOrder(cart:Cart):OrderConfirmation`, `+ displayConfirmation(confirmation:OrderConfirmation):void` (actor-facing UI)
+- `OrderController` — **`«control»`**: `+ placeOrder(cart:Cart):OrderConfirmation` (coordinates this use case)
 - `Manager` and `Staff` — specialised users.
 
 **Relationships (choose the right one — this is where marks are won/lost):**
-- `Order` **composition** `OrderLine` — an order line cannot exist without its order (destroy the order → destroy its lines). Filled diamond at `Order`.
-- `OrderLine` **association** `MenuItem` — a line *refers to* a menu item (the item exists independently). Plain line, multiplicity 1.
-- `Cafe` **aggregation** `MenuItem` — a menu item *is part of* a café's menu but can exist independently (e.g. shared/reused items). Hollow diamond at `Cafe`.
-- `Student` **association** `Order` (1 → 0..*) — a student places many orders.
+- `Student` **association** `Cart` (1 → 0..1) — a student has at most one active cart; `Student` **association** `Order` (1 → 0..*) — a student places many orders.
+- `Cart` **composition** `CartLine` — cart lines do not exist without their cart; `CartLine` **association** `MenuItem` — each line refers to one independently existing menu item.
+- `Order` **composition** `OrderLine` — an order line cannot exist without its order; `OrderLine` **association** `MenuItem` — a line records the ordered item.
+- `Order` **composition** `Payment` — a successful order stores its payment record.
+- `Cafe` **aggregation** `MenuItem` — a menu item *is part of* a café's menu but can exist independently. `Cafe` **composition** `OrderQueue` — each café owns its live queue.
 - `OrderScreen` **association** `OrderController` — the **`«boundary»`** forwards the student's request to the **`«control»`**.
-- `OrderController` **association** `Order`, `MenuItem`, and `Payment` — the **`«control»`** coordinates these **`«entity»`** classes and service for this use case.
+- `OrderController` **association** `Cart`, `Order`, and `OrderQueue` — the **`«control»`** reads the cart, creates an order after authorisation, and queues it.
 - `Staff` and `Manager` **inheritance** from a general `User` superclass — "is-a".
 
 **Diagram answer:**
@@ -118,7 +124,6 @@ classDiagram
     }
     class Student {
         <<entity>>
-        +placeOrder(): Order
     }
     class Staff {
         <<entity>>
@@ -131,19 +136,31 @@ classDiagram
     }
     class OrderScreen {
         <<boundary>>
-        +submitOrder(cart : Cart): void
-        +displayConfirmation(orderId : int): void
+        +submitOrder(cart : Cart): OrderConfirmation
+        +displayConfirmation(confirmation : OrderConfirmation): void
     }
     class OrderController {
         <<control>>
-        +placeOrder(cart : Cart): Order
+        +placeOrder(cart : Cart): OrderConfirmation
+    }
+    class Cart {
+        <<entity>>
+        -cartId : int
+        +addItem(item : MenuItem, quantity : int): void
+        +getItems(): CartLine[]
+        +calculateTotal(): double
+    }
+    class CartLine {
+        <<entity>>
+        -quantity : int
+        +subtotal(): double
     }
     class Order {
         <<entity>>
         -orderId : int
-        -status : String
+        -fulfilmentStatus : String
         -placedAt : DateTime
-        +create(cart : Cart, total : double): Order
+        +setQueued(): void
         +calcTotal(): double
     }
     class OrderLine {
@@ -164,26 +181,33 @@ classDiagram
         -cafeId : int
         -name : String
     }
+    class OrderQueue {
+        <<entity>>
+        +enqueue(order : Order): void
+    }
     class Payment {
         <<entity>>
         -amount : double
-        -method : String
         -status : String
-        +charge(amt : double): boolean
+        -authorisationRef : String
     }
 
     User <|-- Student
     User <|-- Staff
     User <|-- Manager
+    Student "1" --> "0..1" Cart : owns
     Student "1" --> "0..*" Order : places
+    Cart "1" *-- "0..*" CartLine : contains
+    CartLine "*" --> "1" MenuItem : refers to
     OrderScreen --> OrderController : delegates to
+    OrderController --> Cart : reads
     OrderController --> Order : creates
-    OrderController --> MenuItem : gets prices
-    OrderController --> Payment : charges
-    Order "1" *-- "1..*" OrderLine : composed of
+    OrderController --> OrderQueue : enqueues
+    Order "1" *-- "1..*" OrderLine : contains
     OrderLine "*" --> "1" MenuItem : refers to
+    Order "1" *-- "1" Payment : records
     Cafe "1" o-- "*" MenuItem : menu
-    Order "1" --> "1" Payment : paid by
+    Cafe "1" *-- "1" OrderQueue : has
 ```
 
 > **How to read it:** `<<boundary>>` handles actor interaction, `<<control>>` coordinates this use case, and `<<entity>>` holds business-domain data. Filled diamond = composition; hollow diamond = aggregation; hollow triangle = inheritance.
@@ -195,16 +219,16 @@ classDiagram
 ## Q4 (5 marks) — Sequence diagram for *Place Order* (describe)
 
 One sequence diagram per use case. Objects left→right (initiator on the left):
-`:Student` → `«boundary» :OrderScreen` → `«control» :OrderController` → `«entity» :MenuItem` / `«entity» :Payment` → `:PaymentGateway` → `«entity» :Order`
+`:Student` → `«boundary» :OrderScreen` → `«control» :OrderController` → `«entity» :Cart` / `:MenuItem` → `:PaymentGateway` → created `«entity» :Order` / `:Payment` → `«entity» :OrderQueue`
 
 Message flow (top→bottom = time):
 1. `Student` → `«boundary» :OrderScreen` : `submitOrder(cart)`
 2. `«boundary» :OrderScreen` → `«control» :OrderController` : `placeOrder(cart)`
-3. loop for each cart item: `«control» :OrderController` → `«entity» :MenuItem` : `getPrice()` → *return price* (dashed arrow)
-4. `«control» :OrderController` → `«entity» :Payment` : `charge(total)`
-5. `«entity» :Payment` → `PaymentGateway` : `processPayment(total)` → *return confirmation*
-6. On successful payment, `«control» :OrderController` → `«entity» :Order` : `create(cart, total)`
-7. `«control» :OrderController` → `«boundary» :OrderScreen` : `displayConfirmation(orderId)` → *return confirmation to Student*
+3. `«control» :OrderController` → `«entity» :Cart` : `getItems()` → *return cart lines* (dashed arrow)
+4. loop for each cart line: `«control» :OrderController` → `«entity» :MenuItem` : `getPrice()` → *return price* (dashed arrow)
+5. `«control» :OrderController` → `PaymentGateway` : `authorise(total)` → *return approval*
+6. On approval, create `«entity» :Order`; create its `«entity» :Payment` record; then enqueue the order in `«entity» :OrderQueue`.
+7. `«control» :OrderController` → `«boundary» :OrderScreen` : `displayConfirmation(confirmation)` → *return confirmation to Student*
 
 Notation: activation bars (focus of control) over each lifeline while active; solid filled arrows for calls, dashed open arrows for returns.
 
@@ -215,24 +239,31 @@ sequenceDiagram
     actor Student
     participant S as «boundary» :OrderScreen
     participant C as «control» :OrderController
+    participant Cart as «entity» :Cart
     participant M as «entity» :MenuItem
-    participant P as «entity» :Payment
     participant G as :PaymentGateway
+    participant Q as «entity» :OrderQueue
 
     Student->>+S: submitOrder(cart)
     S->>+C: placeOrder(cart)
-    loop each item in cart
+    C->>+Cart: getItems()
+    Cart-->>-C: cartLines
+    loop each cart line
         C->>+M: getPrice()
         M-->>-C: price
     end
-    C->>+P: charge(total)
-    P->>+G: processPayment(total)
-    G-->>-P: confirmation
-    P-->>-C: paid
+    C->>+G: authorise(total)
+    G-->>-C: approval
     create participant O as «entity» :Order
-    C->>+O: create(cart, total)
-    O-->>-C: orderId
-    C->>S: displayConfirmation(orderId)
+    C->>+O: «create» Order(cart, total)
+    create participant P as «entity» :Payment
+    C->>+P: «create» Payment(order, total, approval)
+    P-->>-C: receipt
+    C->>+Q: enqueue(order)
+    Q-->>-C: queued
+    C->>O: setQueued()
+    O-->>-C: confirmation
+    C->>S: displayConfirmation(confirmation)
     deactivate C
     S-->>-Student: orderConfirmation
 ```
@@ -277,7 +308,7 @@ Using the standard 8-column matrix for the *Make Payment* feature:
 
 | Case ID | Scenario | Steps | Prerequisites | Test Data | Expected Result | Actual | Status |
 |---|---|---|---|---|---|---|---|
-| CE-PAY-01 | Successful card payment | 1. Place order; 2. Choose card; 3. Enter valid details; 4. Confirm | Logged-in student; valid items in cart | Valid card, amount = $12.50 | Payment approved; order status → *Paid*; confirmation shown | *(as expected)* | *Pass* |
+| CE-PAY-01 | Successful card payment | 1. Place order; 2. Choose card; 3. Enter valid details; 4. Confirm | Logged-in student; valid items in cart | Valid card, amount = $12.50 | Payment is approved and recorded; order fulfilment status → *Queued*; confirmation shown | *(as expected)* | *Pass* |
 | CE-PAY-02 | Declined card | 1–4 as above | Logged-in student; valid items in cart | Card flagged "insufficient funds", amount = $12.50 | Payment rejected; clear error message; cart remains available to retry; **no order is created** and no stock is committed | | |
 | CE-PAY-03 | Invalid cart quantity (boundary) | 1. Set item quantity; 2. Attempt checkout | Menu item available | quantity = 0 | Validation error "quantity must be at least 1"; checkout blocked | | |
 | CE-CART-04 | Boundary max quantity | 1. Set quantity to max allowed (e.g. 10); 2. Checkout | Item available, stock ≥ 10 | quantity = 10 | Order accepted; total = 10 × price | | |

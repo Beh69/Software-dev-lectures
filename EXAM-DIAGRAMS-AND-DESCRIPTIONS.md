@@ -42,34 +42,38 @@ Basic Flow:
   6. The system creates the order and places it in the café's live queue.
   7. The system shows an order confirmation with an estimated time.
 Alternative Flows:
-  4a. Student applies a promo code (extend: Apply Promo Code): total is recalculated.
   5a. Payment is declined: the system shows an error, order is NOT created,
       and the student may retry or cancel.
   *a. Student cancels during checkout: the cart is kept, no order is created.
-Postconditions: A paid order exists with status "Queued"; café staff are notified.
+Postconditions: A paid order exists with status "Queued" in the café's live queue;
+      café staff can view it for preparation.
 ```
 
 ### Example B — Sure Thing Insurance: *Lodge Car Insurance Claim*
 ```
 Use Case:        Lodge Claim (Car)
-Actor(s):        Policyholder (primary); Assessor (secondary, downstream)
+Actor(s):        Policyholder (primary)
 Description:     A policyholder lodges an online claim against a car policy.
 Preconditions:   Policyholder is authenticated and holds an active car policy.
 Basic Flow:
   1. Policyholder selects the car policy to claim against.
-  2. System presents the claim form and calculates/records the applicable excess.
-     If approved, the excess is deducted from the payout; if rejected, a bill is issued.
-  3. Policyholder enters claim type (theft or damage), date/time, and location.
-  4. For damage: policyholder describes the accident, fault, other party, conditions.
-      For theft: policyholder answers locked/garaged/alarmed/steering-locked questions.
-  5. Policyholder submits the claim.
-  6. System records the claim and adds it to an assessor's queue.
+  2. System presents the claim form.
+  3. Policyholder enters the claim type, date/time, location, and incident-driver details
+     needed to calculate the applicable excess (including age and licence duration).
+  4. For damage: policyholder records the accident description and diagram, weather and
+     lighting conditions, fault, and the other party's/person's/company's insurer details.
+     For theft: policyholder records whether the car was locked, garaged, alarmed, and
+     steering-locked.
+  5. System calculates and records the applicable excess from the claim details.
+  6. Policyholder submits the claim.
+  7. System creates the claim, records required supporting information, and adds it to an
+     assessor queue.
 Alternative Flows:
-  2a. Driver was under 25 or licensed < 1 year: increased excess is applied.
-  4a. Theft claim: system flags that a physical police report is required.
-  *a. Policyholder cancels at any time before submission: no claim is lodged.
-Postconditions: A claim exists with status "Lodged" and is queued for an assessor;
-      the fact a claim was made is recorded for next year's premium calculation.
+  4a. Theft claim: system records that a physical police report is required.
+  *a. Policyholder cancels before submitting: no claim is created or lodged.
+Postconditions: A claim exists with status "Lodged" and is queued for assessor assignment;
+      the claim is recorded for next year's premium calculation. Assessment, payout,
+      billing, fraud investigation, and the two-week theft outcome occur after lodgement.
 ```
 
 ### The matching use case DIAGRAM (CampusEats)
@@ -85,47 +89,50 @@ flowchart LR
       UC1((Browse Menu))
       UC2((Place Order))
       UC3((Make Payment))
-      UC4((Apply Promo Code))
-      UC5((View Order Queue))
-      UC6((Mark Order Ready))
+      UC4((View Order Queue))
+      UC5((Mark Order Ready))
+      UC6((Notify Student Order Ready))
       UC7((Manage Menu))
       UC8((View Sales Report))
-      UC9((Receive Notification))
+      UC9((Receive Order-Ready Notification))
       UC10((Process Payment via Gateway))
     end
 
     student --- UC1
     student --- UC2
     student --- UC9
+    staff --- UC4
     staff --- UC5
-    staff --- UC6
     manager --- UC7
     manager --- UC8
     UC10 --- gateway
 
     UC2 -. include .-> UC3
     UC3 -. include .-> UC10
-    UC4 -. extend .-> UC2
+    UC5 -. include .-> UC6
 ```
 
 **ASCII version (what you draw on paper):**
 ```
-           +--------------------------- CampusEats ---------------------------+
-           |                                                                  |
-Student ---+--( Browse Menu )       ( Receive Notification )                  |
-     \     |                                                                  |
-      \----+--( Place Order ) .....«include».....> ( Make Payment )           |
-           |       ^                                      |                   |
-           |       | «extend»                             | «include»         |
-           | ( Apply Promo Code )              ( Process Payment via Gateway ) |
-           |                                                   |               |
-Café Staff-+--( View Order Queue )     ( Mark Order Ready )     |               |
-           |                                                   |               |
-Manager ---+--( Manage Menu )          ( View Sales Report )     |               |
-           |                                                   |               |
-           +---------------------------------------------------|---------------+
-                                                               |
-                                            Payment Gateway ----+
+           +-------------------------- CampusEats ---------------------------+
+           |                                                                 |
+Student ---+--( Browse Menu )     ( Receive Order-Ready Notification )       |
+     \     |                                                                 |
+      \----+--( Place Order ) ....«include»....> ( Make Payment )            |
+           |                                      |                          |
+           |                                      | «include»                |
+           |                         ( Process Payment via Gateway )         |
+           |                                                                 |
+Café Staff-+--( View Order Queue )    ( Mark Order Ready )                   |
+           |                                      |                          |
+           |                                      | «include»                |
+           |                         ( Notify Student Order Ready )          |
+           |                                                                 |
+Manager ---+--( Manage Menu )         ( View Sales Report )                  |
+           |                                                                 |
+           +-----------------------------------------------------+-----------+
+                                                                 |
+                                              Payment Gateway ----+
 ```
 - Actor = stick figure (shown as a name on paper). Use case = ellipse. **System boundary** = the box.
 - `«include»` = dashed arrow, compulsory/reused behaviour. `«extend»` = dashed arrow, optional/conditional.
@@ -146,6 +153,8 @@ Class box = **three compartments: name / attributes / methods**. Visibility pref
 
 ### Example A — CampusEats
 
+**Scope:** this design class diagram supports browsing, cart management, successful payment authorisation, order creation, and queueing for the **Place Order** use case. The later *Mark Order Ready → Notify Student Order Ready* workflow is shown in the use-case diagram but is outside this sequence diagram's scope.
+
 ```mermaid
 classDiagram
     class User {
@@ -156,7 +165,6 @@ classDiagram
     }
     class Student {
         <<entity>>
-        +placeOrder(): Order
     }
     class Staff {
         <<entity>>
@@ -164,19 +172,31 @@ classDiagram
     }
     class OrderScreen {
         <<boundary>>
-        +submitOrder(cart : Cart): void
-        +displayConfirmation(orderId : int): void
+        +submitOrder(cart : Cart): OrderConfirmation
+        +displayConfirmation(confirmation : OrderConfirmation): void
     }
     class OrderController {
         <<control>>
-        +placeOrder(cart : Cart): Order
+        +placeOrder(cart : Cart): OrderConfirmation
+    }
+    class Cart {
+        <<entity>>
+        -cartId : int
+        +addItem(item : MenuItem, quantity : int): void
+        +getItems(): CartLine[]
+        +calculateTotal(): double
+    }
+    class CartLine {
+        <<entity>>
+        -quantity : int
+        +subtotal(): double
     }
     class Order {
         <<entity>>
         -orderId : int
-        -status : String
+        -fulfilmentStatus : String
         -placedAt : DateTime
-        +create(cart : Cart, total : double): Order
+        +setQueued(): void
         +calcTotal(): double
     }
     class OrderLine {
@@ -197,69 +217,62 @@ classDiagram
         -cafeId : int
         -name : String
     }
+    class OrderQueue {
+        <<entity>>
+        +enqueue(order : Order): void
+    }
     class Payment {
         <<entity>>
         -amount : double
-        -method : String
         -status : String
-        +charge(amt : double): boolean
+        -authorisationRef : String
     }
 
     User <|-- Student
     User <|-- Staff
+    Student "1" --> "0..1" Cart : owns
     Student "1" --> "0..*" Order : places
+    Cart "1" *-- "0..*" CartLine : contains
+    CartLine "*" --> "1" MenuItem : refers to
     OrderScreen --> OrderController : delegates to
+    OrderController --> Cart : reads
     OrderController --> Order : creates
-    OrderController --> MenuItem : gets prices
-    OrderController --> Payment : charges
-    Order "1" *-- "1..*" OrderLine : composed of
+    OrderController --> OrderQueue : enqueues
+    Order "1" *-- "1..*" OrderLine : contains
     OrderLine "*" --> "1" MenuItem : refers to
+    Order "1" *-- "1" Payment : records
     Cafe "1" o-- "*" MenuItem : menu
-    Order "1" --> "1" Payment : paid by
+    Cafe "1" *-- "1" OrderQueue : has
 ```
 
 **ASCII version (what you draw on paper):**
 ```text
-                       +------------------+
-                       |  «entity» User   |
-                       +------------------+
-                          /_\
-                     ______|______
-                    |             |
-          +----------------+ +----------------+
-          | «entity»       | | «entity»       |
-          | Student        | | Staff          |
-          +----------------+ +----------------+
+Student ──owns──> «entity» Cart ◆──> «entity» CartLine ──refers to──> «entity» MenuItem
+   |                        |
+   | places                 | checked out into
+   v                        v
+«entity» Order ◆─────────> «entity» OrderLine ──refers to──> «entity» MenuItem
+   |
+   ◆ records
+   v
+«entity» Payment
 
-+---------------------+ delegates +--------------------------+
-| «boundary»          |---------> | «control»                |
-| OrderScreen         |           | OrderController          |
-+---------------------+           +--------------------------+
-                                            | creates / coordinates
-              +-----------------------------+-----------------------------+
-              |                             |                             |
-              v                             v                             v
-   +-------------------+         +-------------------+         +-------------------+
-   | «entity» Order    |◆------->| «entity»          |         | «entity» Payment  |
-   +-------------------+ composed | OrderLine         |         +-------------------+
-                                 +-------------------+
-                                            |
-                                            | refers to
-                                            v
-                                 +-------------------+
-                                 | «entity»          |
-                                 | MenuItem           |
-                                 +-------------------+
+«boundary» OrderScreen ──delegates to──> «control» OrderController
+                                                | reads / creates / enqueues
+                                                +──> Cart, Order, «entity» OrderQueue
 
-   +-------------------+
-   | «entity» Cafe     |◇--------------------------> MenuItem
-   +-------------------+  aggregation
+«entity» Cafe ◇──> MenuItem
+«entity» Cafe ◆──> OrderQueue
 ```
+
+This compact sketch shows the important scope: the cart is separate from the final order, so `CartLine` and `OrderLine` have separate lifecycles. The `OrderController` creates and queues an order only after payment authorisation succeeds.
+
 - `OrderScreen —— OrderController`: **association** — the **`«boundary»`** forwards the student's request to the **`«control»`**.
-- `OrderController —— Order / MenuItem / Payment`: **associations** — the **`«control»`** coordinates these **`«entity»`** classes and service during the use case.
-- `Order ◆—— OrderLine`: **composition** — delete the order, its lines die.
-- `Cafe ◇—— MenuItem`: **aggregation** — items belong to a menu but exist independently.
-- `OrderLine —— MenuItem`: **association** — a line just references an item.
+- `OrderController —— Cart / Order / OrderQueue`: **associations** — the **`«control»`** reads the cart, creates the order, and queues it after successful authorisation.
+- `Cart ◆—— CartLine` and `Order ◆—— OrderLine`: **composition** — their line objects do not exist without their owning cart or order.
+- `CartLine —— MenuItem` and `OrderLine —— MenuItem`: **associations** — each line refers to an independently existing menu item.
+- `Order ◆—— Payment`: **composition** — a successful order records its payment; no persistent payment record is created for a declined authorisation.
+- `Cafe ◇—— MenuItem` is **aggregation**; `Cafe ◆—— OrderQueue` is **composition**.
 - `Student/Staff ——▷ User`: **inheritance**.
 
 ### Example B — Sure Thing Insurance (relationship-focused)
@@ -276,6 +289,8 @@ classDiagram
         -policyNo : String
         -premium : double
         -excess : double
+        +isActive(): boolean
+        +calculateApplicableExcess(driver : IncidentDriver, details : ClaimDetails): double
     }
     class CarPolicy {
         <<entity>>
@@ -283,29 +298,85 @@ classDiagram
     class HomePolicy {
         <<entity>>
     }
+    class CarCoverage {
+        <<entity>>
+    }
+    class ThirdPartyOnly {
+        <<entity>>
+    }
+    class ThirdPartyFireTheft {
+        <<entity>>
+    }
+    class Comprehensive {
+        <<entity>>
+    }
+    class IncidentDriver {
+        <<entity>>
+        -age : int
+        -licenceDurationMonths : int
+    }
+    class ClaimDetails {
+        <<entity>>
+        -claimType : String
+        -incidentDateTime : DateTime
+        -location : String
+        -accidentDiagram : String
+        -weather : String
+        -lighting : String
+    }
     class Claim {
         <<entity>>
         -claimId : int
         -status : String
         -dateLodged : Date
+        -excess : double
+        -policeReportRequired : boolean
+        +validate(): boolean
+        +requirePhysicalPoliceReport(): void
     }
     class Assessor {
         <<entity>>
         +assess(c : Claim): void
     }
+    class AssessorQueue {
+        <<entity>>
+        +enqueue(claim : Claim): void
+    }
+    class ClaimForm {
+        <<boundary>>
+        +submitClaim(policyNo : String, details : ClaimDetails, driver : IncidentDriver): ClaimConfirmation
+        +displayConfirmation(claimId : int): void
+    }
+    class ClaimController {
+        <<control>>
+        +lodgeClaim(policyNo : String, details : ClaimDetails, driver : IncidentDriver): ClaimConfirmation
+    }
 
-    Policyholder "1" o-- "*" Policy : portfolio
+    Policyholder "1" o-- "0..*" Policy : portfolio
     Policy <|-- CarPolicy
     Policy <|-- HomePolicy
-    Policy "1" *-- "*" Claim : composed of
-    Assessor "1" --> "*" Claim : assesses
+    CarPolicy "1" --> "1" CarCoverage : coverage
+    CarCoverage <|-- ThirdPartyOnly
+    CarCoverage <|-- ThirdPartyFireTheft
+    CarCoverage <|-- Comprehensive
+    Policy "1" *-- "0..*" Claim : owns
+    Claim "1" *-- "1" ClaimDetails : records
+    Claim "1" --> "1" IncidentDriver : incident driver
+    AssessorQueue "1" --> "0..*" Claim : queues
+    Assessor "0..1" --> "0..*" Claim : assigned to
+    ClaimForm --> ClaimController : submits to
+    ClaimController --> Policy : checks / calculates excess
+    ClaimController --> Claim : creates
+    ClaimController --> AssessorQueue : enqueues
 ```
 
 **Key modelling choices to state in your answer:**
-- `Policyholder ◇—— Policy` (**aggregation**): a policyholder holds a *portfolio* of policies; a policy can exist/transfer independently.
-- `Policy ◆—— Claim` (**composition**): a claim only exists in the context of its policy.
-- `CarPolicy / HomePolicy ——▷ Policy` (**inheritance**): coverage types specialise a general policy (supports the "easily extendable" requirement).
-- `Assessor —— Claim` (**association**): assessors process claims.
+- `Policyholder ◇—— Policy` (**aggregation**): a policyholder holds a portfolio of independently managed policies.
+- `Policy ◆—— Claim` (**composition**): each claim belongs to one policy and is not meaningful without it.
+- `CarPolicy / HomePolicy ——▷ Policy` (**inheritance**): they specialise the common policy data. `ThirdPartyOnly`, `ThirdPartyFireTheft`, and `Comprehensive` specialise `CarCoverage`, which makes the required car-coverage choices explicit and extendable.
+- `Claim ◆—— ClaimDetails` (**composition**): lodged claim information, such as the accident diagram and conditions, belongs to its claim. `Claim —— IncidentDriver` is an association because the driver is a separate person.
+- `AssessorQueue —— Claim` records unassigned lodged claims. `Assessor 0..1 —— Claim` permits a claim to be queued before an assessor is assigned.
+- `ClaimForm` (**`«boundary»`**) and `ClaimController` (**`«control»`**) are included because the matching sequence diagram uses them; their operations and associations now match that interaction.
 
 ---
 
@@ -321,60 +392,65 @@ Rules from the slides (Topic 4):
 - **Return** (optional) = **dashed line with an open/empty arrowhead**.
 - One sequence diagram generally describes **one use case** (the class diagram is assumed done).
 
-### Example A — CampusEats: *Place Order* (uses a B-C-E control object)
+### Example A — CampusEats: *Place Order* (B-C-E, cart, payment, and queueing)
 
 ```mermaid
 sequenceDiagram
     actor Student
     participant S as «boundary» :OrderScreen
     participant C as «control» :OrderController
+    participant Cart as «entity» :Cart
     participant M as «entity» :MenuItem
-    participant P as «entity» :Payment
     participant G as :PaymentGateway
+    participant Q as «entity» :OrderQueue
 
-    Student->>S: submitOrder(cart)
-    S->>C: placeOrder(cart)
-    loop each item in cart
-        C->>M: getPrice()
-        M-->>C: price
+    Student->>+S: submitOrder(cart)
+    S->>+C: placeOrder(cart)
+    C->>+Cart: getItems()
+    Cart-->>-C: cartLines
+    loop each cart line
+        C->>+M: getPrice()
+        M-->>-C: price
     end
-    C->>P: charge(total)
-    P->>G: processPayment(total)
-    G-->>P: confirmation
-    P-->>C: paid
+    C->>+G: authorise(total)
+    G-->>-C: approval
     create participant O as «entity» :Order
-    C->>O: create(cart, total)
-    C->>S: displayConfirmation(orderId)
-    S-->>Student: orderConfirmation
+    C->>+O: «create» Order(cart, total)
+    create participant P as «entity» :Payment
+    C->>+P: «create» Payment(order, total, approval)
+    P-->>-C: receipt
+    C->>+Q: enqueue(order)
+    Q-->>-C: queued
+    C->>O: setQueued()
+    O-->>-C: confirmation
+    C->>S: displayConfirmation(confirmation)
+    deactivate C
+    S-->>-Student: orderConfirmation
 ```
 
 **ASCII version (what you draw on paper):**
+```text
+Student  «boundary»       «control»       «entity»       external        «entity»
+          :OrderScreen    :OrderController :Cart/MenuItem  :PaymentGateway :Order/:Payment/:OrderQueue
+   |             |                 |                |              |                 |
+   |--submit---->|                 |                |              |                 |
+   |             |--placeOrder---->|                |              |                 |
+   |             |                 |--getItems---->|              |                 |
+   |             |                 |<- - lines - - |              |                 |
+   |             |                 |--getPrice---->|              |                 |  (loop)
+   |             |                 |<- - price - - |              |                 |
+   |             |                 |--authorise(total)----------->|                 |
+   |             |                 |<- - approval - - - - - - - -|                 |
+   |             |                 |--«create» Order/Payment/Queue----------------->|
+   |             |                 |--enqueue(order)-------------------------------->|
+   |             |                 |<- - confirmation - - - - - - - - - - - - - - -|
+   |             |<-displayConfirmation(confirmation)-|              |                 |
+   |<- - orderConfirmation - -|                 |                |              |                 |
 ```
-Student       «boundary»         «control»           «entity»     «entity»   :PaymentGateway   «entity»
-              :OrderScreen     :OrderController      :MenuItem     :Payment                    :Order
-  |                 |               |              |            |              |           |
-  |-submitOrder()-->|               |              |            |              |           |
-  |                |##|             |              |            |              |           |
-  |                 |-placeOrder()-->|              |            |              |           |
-  |                 |              |##|            |            |              |           |
-  |                 |               |--getPrice()-->|            |              |           |  (loop per item)
-  |                 |               |<- - price - - |            |              |           |  (dashed = return)
-  |                 |               |--charge(total)------------>|              |           |
-  |                 |               |              |           |##|             |           |
-  |                 |               |              |            |-processPayment()->|      |
-  |                 |               |              |            |<- - confirmation -|      |
-  |                 |               |<- - paid - - |            |              |           |
-  |                 |               |----------------create(cart, total)--------------->|  (lifeline begins here)
-  |                 |<-displayConfirmation(orderId)-|              |            |          |
-  |<- - orderConfirmation - -|               |              |            |              |           |
-  |                 |               |              |            |              |           |
-```
-- Solid arrow `--->` = call (method of the receiver). Dashed arrow `<- -` = return value.
-- Stereotypes identify each role: **Boundary** receives actor interaction, **Control** coordinates the use case, and **Entity** represents domain/persistent data. `:PaymentGateway` is an external system, so it has no B-C-E stereotype.
-- The vertical dashed lines are **lifelines**; the `##` blocks are **focus of control**.
-- `Student` initiates, so it's on the **left**; the external `PaymentGateway` is furthest right.
 
-### Example B — Sure Thing Insurance: *Lodge Claim* (shows object creation + deletion)
+The controller has the longest focus of control because it coordinates the order. Payment authorisation happens before the `Order` and persistent `Payment` record are created; therefore a failed authorisation leaves the cart available and creates no order. The Mermaid diagram above shows the activation bars; when drawing by hand, add narrow activation rectangles to the active `OrderScreen`, `OrderController`, `Cart`, `MenuItem`, `Order`, `Payment`, and `OrderQueue` lifelines.
+
+### Example B — Sure Thing Insurance: *Lodge Claim* (B-C-E and object creation)
 
 ```mermaid
 sequenceDiagram
@@ -384,24 +460,31 @@ sequenceDiagram
     participant Pol as «entity» :Policy
     participant Q as «entity» :AssessorQueue
 
-    Policyholder->>F: submitClaim(policyNo, details)
-    F->>CC: lodgeClaim(policyNo, details)
-    CC->>Pol: getExcess()
-    Pol-->>CC: excess
+    Policyholder->>+F: submitClaim(policyNo, details, incidentDriver)
+    F->>+CC: lodgeClaim(policyNo, details, incidentDriver)
+    CC->>+Pol: isActive()
+    Pol-->>-CC: active
+    CC->>+Pol: calculateApplicableExcess(incidentDriver, details)
+    Pol-->>-CC: excess
     create participant Cl as «entity» :Claim
-    CC->>Cl: create(details, excess)
+    CC->>+Cl: «create» Claim(details, incidentDriver, excess)
     CC->>Cl: validate()
-    Cl-->>CC: valid
-    CC->>Q: enqueue(claim)
-    Q-->>CC: queued
+    Cl-->>-CC: valid
+    alt [claim type = theft]
+        CC->>+Cl: requirePhysicalPoliceReport()
+        Cl-->>-CC: reportRequired
+    end
+    CC->>+Q: enqueue(claim)
+    Q-->>-CC: queued
     CC->>F: displayConfirmation(claimId)
-    F-->>Policyholder: claimConfirmation(claimId)
+    deactivate CC
+    F-->>-Policyholder: claimConfirmation
 ```
 
 **Notes to earn marks:**
-- `create(...)` is shown as a message that **creates** the `:Claim` object (its lifeline starts there).
-- If the policyholder *cancels*, you'd show an **X** on the `:Claim` lifeline (object deleted).
-- `:ClaimForm` is the **Boundary** that the policyholder interacts with; `:ClaimController` is the **Control** class that coordinates the use case and links the Boundary to entity classes — exactly the B-C-E "glue" role from Topic 4.
+- The `:Claim` lifeline begins only after the submission data has been checked and the applicable excess has been calculated. In a cancellation-before-submission alternative flow, **no Claim object exists**, so no deletion X is drawn.
+- The `alt [claim type = theft]` fragment records the physical police-report requirement during lodgement. Assessment, approval/rejection, payout/billing, fraud investigation, and the two-week theft outcome belong to later claim-resolution behaviour.
+- `:ClaimForm` is the **`«boundary»`** that the policyholder interacts with. `:ClaimController` is the **`«control»** class that coordinates the use case. `:Policy`, `:Claim`, and `:AssessorQueue` are **`«entity»`** participants.
 
 ---
 
