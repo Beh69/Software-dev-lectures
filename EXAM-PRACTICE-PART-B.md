@@ -297,17 +297,119 @@ Writing out your own answers (not just reading these) is what builds Part B spee
 
 ---
 
+# Independent Practice Sets
+
+These scenarios are deliberately **questions only**. Attempt each under exam conditions before comparing your approach with the CampusEats worked examples above. Each set has seven questions and targets the same skills as Part B.
+
+## Practice Set 1 — UniLibrary Lending System
+
+> **Scenario:** UniLibrary wants a web system for students and staff to search its catalogue and manage loans. A **member** can search by title, author, or ISBN, view a book's availability, borrow an available physical copy at the library desk, return a copy, and renew an existing loan. A member may have at most **10 active loans**. A standard loan lasts **14 days**. If every copy is on loan, a member may place a hold; when a copy is returned, the first member in the hold queue is notified. A **librarian** adds books and copies to the catalogue and records lost copies. The university expects the first release to cover physical book loans; e-book lending may be added later. Requirements may change after feedback from students and library staff.
+
+### Q1 (5 marks) — User stories
+Write **five** user stories using the template *As a `<type of user>`, I want `<goal>` so that `<reason>`.* Cover both Member and Librarian.
+
+### Q2 (5 marks) — Use case description and use case diagram
+For the **Borrow Copy** use case:
+
+1. Write a use case description containing **Actor(s), Description, Preconditions, Basic Flow, Alternative Flows, and Postconditions**.
+2. Draw a use case diagram for UniLibrary. Include Member and Librarian, the system boundary, and the main use cases.
+3. Use `«include»` or `«extend»` where justified. State in one sentence why each relationship is include or extend.
+
+### Q3 (6 marks) — Class diagram with B-C-E
+Draw a class diagram for **Borrow Copy**. Include suitable `«boundary»`, `«control»`, and `«entity»` classes; attributes, operations, multiplicities, and relationships.
+
+Your diagram should consider at least: `Member`, `Book`, `BookCopy`, `Loan`, `Hold`, a Boundary class, and a Control class. Show and justify whether a `Book`–`BookCopy` relationship is association, aggregation, or composition.
+
+### Q4 (5 marks) — Sequence diagram
+Draw a sequence diagram for **Borrow Copy** using the classes from Q3. Include:
+
+- Member → `«boundary»` → `«control»` interaction.
+- A check that the member has fewer than 10 active loans.
+- A check that the selected copy is available.
+- Creation of the loan and the change of the copy's status to *On loan*.
+- Activation bars, solid call arrows, and dashed return arrows where appropriate.
+
+### Q5 (5 marks) — State diagram
+Draw a state diagram for one `BookCopy`. Use at least these states: **Available**, **On loan**, **On hold**, and **Lost**. Label each transition with a relevant event, and add a guard condition where it helps.
+
+### Q6 (6 marks) — Process recommendation
+Recommend a software process/model for UniLibrary and justify it using **three facts** from the scenario. Compare your choice with one model that would be less suitable.
+
+### Q7 (8 marks) — Testing approach and test cases
+1. Propose a layered testing approach using static verification, unit testing, integration testing, system testing, and acceptance testing.
+2. Create a test-case matrix with at least **four test cases** for borrowing and renewing loans. Include one normal case, one **equivalence-partition** case, and at least two **boundary-value** cases for the maximum-loan or loan-duration rules.
+
+---
+
+## Practice Set 2 — EventHub Booking System
+
+> **Scenario:** EventHub is a web and mobile system for university clubs to publish events and for students to reserve tickets. An **attendee** can browse events, select a ticket type, reserve a ticket, pay online, receive a booking confirmation, and cancel a booking before the event begins. An **organiser** creates events, defines ticket types and prices, sets capacity, and checks attendee lists. An event may have multiple ticket types, such as Student and General Admission. A reservation is confirmed only after a successful payment. If an event is full, an attendee can join a waiting list; when a booking is cancelled, the first waiting attendee is offered a ticket. Payments use an external **Payment Gateway**. The team needs to release a small useful version early, expects event requirements to change, and wants every accepted change to be built and tested automatically.
+
+### Q1 (5 marks) — User stories
+Write **five** user stories covering at least one Attendee goal, one Organiser goal, online payment, cancellation, and the waiting list.
+
+### Q2 (5 marks) — Use case diagram and relationships
+Draw a use case diagram for EventHub. Include Attendee, Organiser, and the external Payment Gateway. Include at least six use cases, and show:
+
+- `Reserve Ticket` **including** payment processing.
+- The Payment Gateway interacting with the payment-processing use case.
+- `Join Waiting List` as an appropriate optional/conditional extension or explain why you chose a different relationship.
+
+### Q3 (6 marks) — Class diagram with B-C-E
+Draw a class diagram for **Reserve Ticket**. Include B-C-E stereotypes, suitable attributes/methods, multiplicities, and relationships for at least `Attendee`, `Event`, `TicketType`, `Reservation`, `Payment`, a Boundary class, and a Control class.
+
+Explain why `Event`–`TicketType` and `Reservation`–`Payment` use your chosen relationship types.
+
+### Q4 (5 marks) — Sequence diagram
+Draw a sequence diagram for **Reserve Ticket**. Include:
+
+- Actor → `«boundary»` → `«control»` → `«entity»` flow.
+- Capacity validation.
+- Payment sent to the external gateway.
+- Reservation creation **only after successful payment**.
+- A returned booking confirmation and activation bars.
+
+### Q5 (5 marks) — Alternative flow / use case description
+Write an alternative flow for **payment declined** and one for **event full** in a *Reserve Ticket* use case description. State the postcondition for each alternative.
+
+### Q6 (6 marks) — CI/CD and DevOps practice
+Describe a CI/CD and DevOps approach for EventHub. Include a single source repository, automated build/test feedback, staging, the difference between continuous delivery and continuous deployment, and one production-monitoring responsibility.
+
+### Q7 (8 marks) — Test design
+Create a test-case matrix with at least **four** cases for Reserve Ticket. Include:
+
+- successful payment with remaining capacity;
+- a declined payment;
+- a capacity boundary case for the final available ticket;
+- an over-capacity case that places the attendee on the waiting list.
+
+For each case, give concrete preconditions, test data, and expected results.
+
+---
+
+## How to self-mark
+
+Use the CampusEats worked answers as a checklist, not a script:
+
+- **Use cases:** actors outside the system boundary; `«include»` is compulsory; `«extend»` is optional/conditional and points from the extension to the base use case.
+- **Class diagrams:** model only the classes needed by the selected user story/use case; label B-C-E design classes; use multiplicities and justified relationships.
+- **Sequence diagrams:** draw one use case; actor → Boundary → Control → Entity; include activation bars, calls, returns, and only operations that exist in your class diagram.
+- **Test cases:** include an ID, steps, prerequisites, test data, expected results, and normal plus invalid/boundary inputs.
+
+---
+
 ## Sources & Citations
-Each question applies concepts taught on these slides/labs. ("T4 pp.14–21" = UOW 2016 Topic 4.pdf, pages 14–21.)
+These questions apply concepts taught on the following slides and labs. ("T4 pp.14–21" = `UOW 2016 Topic 4.pdf`, pages 14–21.)
 
-| Question | Concept applied | Source |
-|---|---|---|
-| Q1 — user stories | User story template & examples | *T2 p.15*; *Lab 1* pp.1–3 |
-| Q2 — use case diagram | Actors, boundary, «include»/«extend» | *T3 pp.6–14* |
-| Q3 — class diagram | Class symbol/prefixes; aggregation/composition/inheritance/association | *T3 pp.16–21* |
-| Q4 — sequence diagram | Lifelines, focus of control, call/return messages; one use case | *T4 pp.4–11*; B-C-E control object *T4 pp.14–21* |
-| Q5 — process recommendation | Agile/Scrum/XP; incremental & iterative vs waterfall | *T2 pp.4–10,24–27*; *T8 (XP)* pp.16–27 |
-| Q6 — testing approach | V&V, static/dynamic, unit→integration→system→acceptance, white/black-box | *T5 pp.3–29* |
-| Q7 — test cases | Standard 8-column matrix; equivalence partitioning & boundary value analysis | *T5 pp.13–14, 25–27* |
+| Concept / relevant questions | Source |
+|---|---|
+| User-story template — CampusEats Q1; independent Sets 1–2 Q1 | *T2 p.15*; *Lab 1* pp.1–3 |
+| Use case description, actors, boundary, `«include»`, `«extend»` — CampusEats Q2; independent Sets 1–2 Q2 and Set 2 Q5 | *T3 pp.6–14* |
+| Class symbols/prefixes, relationships, B-C-E — CampusEats Q3; independent Sets 1–2 Q3 | *T3 pp.16–21*; *T4 pp.14–21* |
+| Sequence diagrams, lifelines, activation bars, call/return messages — CampusEats Q4; independent Sets 1–2 Q4 | *T4 pp.4–11* |
+| State diagrams — independent Set 1 Q5 | *T3 pp.28–30*; *Lab 3* pp.1–2 |
+| Process-model choice — CampusEats Q5; independent Set 1 Q6 | *T2 pp.4–10, 24–35*; *T8 (XP)* pp.16–27 |
+| CI/CD and DevOps — independent Set 2 Q6 | *T6 pp.17–21, 32–35*; *T7 pp.10–15* |
+| V&V/test levels, black-box techniques, and test-case matrices — CampusEats Q6–Q7; independent Set 1 Q7 and Set 2 Q7 | *T5 pp.3–29* |
 
-> **Legend:** T1–T12 = "UOW 2016 Topic 1–12.pdf"; Lab 1/3/5/7 = the matching "Lab N.pdf". Full file↔page lookup is in `EXAM-STUDY-GUIDE.md` → *Sources & Citations*. The **CampusEats** scenario itself is a mock written for practice (not from the slides); the **Sure Thing Insurance** scenario is from *Lab 1.pdf* pp.1–3.
+> **Legend:** T1–T12 = `UOW 2016 Topic 1–12.pdf`; Lab 1/3/5/7 = the matching `Lab N.pdf`. Full file↔page lookup is in `EXAM-STUDY-GUIDE.md` → *Sources & Citations*. **CampusEats, UniLibrary, and EventHub are mock scenarios written for practice**; the Sure Thing Insurance scenario is from *Lab 1.pdf* pp.1–3.
