@@ -515,6 +515,12 @@ void rejectsNegativeDistance() {
 - Together, the 15 tests include normal inputs, invalid equivalence partitions, and boundary values, matching the lecture’s black-box testing techniques.
 
 ---
+## Question 3
+Assume that you have a team of 6 people (namely Sheldon, Amy, Leonard, Penny, Howard and Raj), and apply a combination of Extreme Programming and DevOps to develop the above system in Question 1 in two months starting today.
+
+Describe how your team would organise and conduct validation and verification during the development of the above system. Your discussion must be specific to this case study (e.g. provide details, activities, timelines and examples that are specific to this team, their chosen methodologies, this system and this duration). Generic answers copied from the lecture slides or other sources will be given 0 marks.
+
+Any assumptions which you have made should be stated clearly.
 
 # Sources & citations
 
