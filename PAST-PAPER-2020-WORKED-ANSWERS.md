@@ -3,8 +3,14 @@
 > **Scope:** These worked answers respond to the two questions in the images provided: the **BigU quiz-making system** question and the **test-driven development** question. They are study material, not official marking answers. Design names such as `QuizController` are deliberate modelling choices derived from the case study; different clear, consistent names could also earn marks.
 
 ---
+BigU University is developing a quiz-making system that assists academic staff in the process of making mid-term tests and weekly quizzes. The system will simplify the entire process: developing questions, designing answers and generating tests/quizzes.
+In order to use the system, each academic staff needs to contact the Discipline Team Leader and registers for an account. The Team Leader then creates an account for the staff based on his/her staff number, name, a list of courses that he/she is teaching and an initial password. The Team Leader can also modify an account or delete it from the system. The system should allow staff to only change their password.
+The system maintains a bank of questions that staff are allowed to add new questions, modify and/or delete existing questions. In order to add a new question to the bank of questions, a staff firstly needs to login into the system. After that, the staff selects from a list of courses the course that the new question is relevant to. The staff then needs to decide the type of the new question. Currently, the system supports only two types of question: multiple choice questions and short answer questions.
+A multiple choice question can have from 2 to 6 potential answers and only one of them is the correct one. The staff then fills in the content of the new question, the number of potential answers and their content, and indicates which one is correct. The staff can preview the new question before saving it to the bank. Since the number of questions in the bank is relative large, the system should also allow staff to search questions based on keywords. There are also other attributes associated with a question such as: the creation date and the creator (staff).
+A staff can also make a test/quiz based on the bank of questions. The staff selects the subject, specifies the number of questions and the title of the test/quiz. Based on these information, the system then randomly picks up the questions from the bank (relevant to the selected subject) and generate the test/quiz. The staff can preview the exam before deciding to print it and/or save it.
 
-# Question 1 — BigU Quiz-Making System
+# Question 1 — Develop a list of user stories for this system
+
 
 ## (a) User stories
 
@@ -27,7 +33,7 @@
 
 ---
 
-## (b) UML use case diagram
+## (b) Develop a UML use case diagram for this system.
 
 ### Actors
 
@@ -108,7 +114,7 @@ flowchart LR
 
 ---
 
-## (c) Use case description — Make Test/Quiz
+## (c) Write a Use case description for the use case of Making a Test/Quiz
 
 ```text
 Use Case:        Make Test/Quiz
@@ -141,7 +147,7 @@ Postconditions: A generated test/quiz is available for preview. If the staff mem
 
 ---
 
-## (d) B-C-E class diagram
+## (d) Use the B-C-E framework to develop a design for the above system. Draw a class diagram to represent your design.
 
 **Scope:** The diagram models the primary information and the B-C-E design needed for account management, question-bank management, and generating a test/quiz. It focuses on the *Make Test/Quiz* use case for the controller methods and later sequence diagram.
 
@@ -265,7 +271,7 @@ classDiagram
 
 ---
 
-## (e) Sequence diagram — Make Test/Quiz
+## (e) Draw a Sequence diagram depicting the use case from part (c)
 
 ```mermaid
 sequenceDiagram
